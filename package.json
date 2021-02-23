@@ -1,8 +1,14 @@
 {
   "name": "react-localstorage-ts",
-  "version": "0.0.1",
-  "description": "a small library to wrap browser's localstorage in a functional fashion",
-  "main": "index.js",
+  "version": "1.0.0",
+  "description": "A small library to wrap browser's localstorage in a functional fashion.",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "fes300",
   "license": "MIT",
   "private": false,
@@ -36,7 +42,7 @@
     "type-test": "jest --config=jest.typetests-config.js --passWithNoTests",
     "runtime-test": "jest --config=jest.config.js --passWithNoTests",
     "test": "yarn type-test && yarn runtime-test",
-    "release:dry": "semantic-release -d --branches master"
+    "release:dry": "semantic-release -d --no-ci"
   },
   "lint-staged": {
     "src/*.{ts,tsx,js,jsx}": [
