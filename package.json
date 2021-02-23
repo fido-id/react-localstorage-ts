@@ -1,0 +1,49 @@
+{
+  "name": "react-localstorage-ts",
+  "version": "0.0.1",
+  "description": "a small library to wrap browser's localstorage in a functional fashion",
+  "main": "index.js",
+  "author": "fes300",
+  "license": "MIT",
+  "private": false,
+  "peerDependencies": {
+    "fp-ts": "^2.9.5",
+    "io-ts": "^2.2.15"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.0.0",
+    "@commitlint/config-conventional": "^12.0.0",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/release-notes-generator": "^9.0.1",
+    "@types/jest": "^26.0.20",
+    "@types/react": "^17.0.2",
+    "dts-jest": "^23.3.0",
+    "fp-ts": "^2.9.5",
+    "husky": "^5.1.1",
+    "io-ts": "^2.2.15",
+    "is-ci": "^3.0.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.2.1",
+    "react": "^17.0.1",
+    "semantic-release": "^17.3.9",
+    "ts-jest": "^26.5.1",
+    "typescript": "^4.1.5"
+  },
+  "scripts": {
+    "postinstall": "is-ci || husky install",
+    "build": "rm -rf ./dist && tsc",
+    "type-test": "jest --config=jest.typetests-config.js --passWithNoTests",
+    "runtime-test": "jest --config=jest.config.js --passWithNoTests",
+    "test": "yarn type-test && yarn runtime-test",
+    "release:dry": "semantic-release -d --branches master"
+  },
+  "lint-staged": {
+    "src/*.{ts,tsx,js,jsx}": [
+      "prettier --write"
+    ],
+    "src/*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

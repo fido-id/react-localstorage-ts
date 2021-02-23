@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "moduleResolution": "Node",
+    "target": "es5",
+    "lib": ["esnext", "dom"],
+    "outDir": "./dist",
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
