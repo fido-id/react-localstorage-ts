@@ -1,30 +1,34 @@
 {
-    "branches": ["master", "beta"],
-    "plugins": [
-      ["@semantic-release/commit-analyzer", {
-        "preset": "angular",
-        "releaseRules": [
-          {"type": "docs", "scope":"readme", "release": "patch"},
-          {"type": "refactor", "release": "patch"},
-          {"type": "style", "release": "patch"}
-        ],
-        "parserOpts": {
-          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
-        }
-      }],
-      "@semantic-release/release-notes-generator",
-      ["@semantic-release/git", {
-        "assets": ["dist/**/*.{js,ts}", "docs", "package.json"],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-      }],
-      [
-        "@semantic-release/changelog",
-        {
-          "changelogFile": "docs/CHANGELOG.md"
-        }
+  "branches": [
+    {"name": "master"},
+    {"name": "alpha", "channel": "alpha", "prerelease": "alpha"},
+    {"name": "beta", "channel": "beta", "prerelease": "beta"}
+  ],
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "preset": "angular",
+      "releaseRules": [
+        {"type": "docs", "scope":"readme", "release": "patch"},
+        {"type": "refactor", "release": "patch"},
+        {"type": "style", "release": "patch"}
       ],
-      ["@semantic-release/npm", {
-        "pkgRoot": "./dist"
-      }]
-    ]
+      "parserOpts": {
+        "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+      }
+    }],
+    "@semantic-release/release-notes-generator",
+    ["@semantic-release/git", {
+      "assets": ["dist/**/*.{js,ts}", "docs", "package.json"],
+      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "docs/CHANGELOG.md"
+      }
+    ],
+    ["@semantic-release/npm", {
+      "pkgRoot": "./dist"
+    }]
+  ]
 }
