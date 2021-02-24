@@ -1,10 +1,9 @@
 import { StoredItem } from "./useLocalStorage";
 export declare function localStorageAvailable(): boolean;
-export declare class LocalStorageChangedEvent extends CustomEvent<{
-    key: StoredItem;
-}> {
-    static eventName: string;
-    constructor(key: StoredItem);
+export interface LocalStorageChangedEvent {
+    detail: {
+        key: StoredItem;
+    };
 }
 export declare const isLocalStorageEvent: (e: any) => e is LocalStorageChangedEvent;
 interface IProxyStorage {

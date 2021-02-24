@@ -4,7 +4,7 @@ import { Lazy } from "fp-ts/lib/function";
 /**
  *  from outside you augment "StoredItems" like this:
  *
- *  declare module "fp-local-storage/StoredItems" {
+ *  declare module "react-localstorage-ts" {
  *    interface StoredItems {
  *      readonly access_token: string
  *    }

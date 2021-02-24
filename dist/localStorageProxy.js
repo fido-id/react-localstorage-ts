@@ -1,19 +1,6 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.localStorageProxy = exports.MemoryStorageProxy = exports.LocalStorageProxy = exports.isLocalStorageEvent = exports.LocalStorageChangedEvent = exports.localStorageAvailable = void 0;
+exports.localStorageProxy = exports.MemoryStorageProxy = exports.LocalStorageProxy = exports.isLocalStorageEvent = exports.localStorageAvailable = void 0;
 function localStorageAvailable() {
     try {
         var x = "@rehooks/local-storage:" + new Date().toISOString();
@@ -38,21 +25,16 @@ function localStorageAvailable() {
     }
 }
 exports.localStorageAvailable = localStorageAvailable;
-var LocalStorageChangedEvent = /** @class */ (function (_super) {
-    __extends(LocalStorageChangedEvent, _super);
-    function LocalStorageChangedEvent(key) {
-        return _super.call(this, LocalStorageChangedEvent.eventName, { detail: { key: key } }) || this;
-    }
-    LocalStorageChangedEvent.eventName = "onLocalStorageChange";
-    return LocalStorageChangedEvent;
-}(CustomEvent));
-exports.LocalStorageChangedEvent = LocalStorageChangedEvent;
+var createLocalStorageChangedEvent = function (key) {
+    return new CustomEvent("onLocalStorageChange", { detail: { key: key } });
+};
 var isLocalStorageEvent = function (e) {
-    return e instanceof LocalStorageChangedEvent;
+    var _a;
+    return typeof ((_a = e === null || e === void 0 ? void 0 : e.detail) === null || _a === void 0 ? void 0 : _a.key) === "string";
 };
 exports.isLocalStorageEvent = isLocalStorageEvent;
 var dispatchCustomEvent = function (key) {
-    return window.dispatchEvent(new LocalStorageChangedEvent(key));
+    return window.dispatchEvent(createLocalStorageChangedEvent(key));
 };
 var LocalStorageProxy = /** @class */ (function () {
     function LocalStorageProxy() {

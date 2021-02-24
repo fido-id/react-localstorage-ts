@@ -25,20 +25,25 @@ export function localStorageAvailable(): boolean {
   }
 }
 
-export class LocalStorageChangedEvent extends CustomEvent<{ key: StoredItem }> {
-  static eventName = "onLocalStorageChange"
+export interface LocalStorageChangedEvent {
+  detail: { key: StoredItem }
+}
 
-  constructor(key: StoredItem) {
-    super(LocalStorageChangedEvent.eventName, { detail: { key } })
-  }
+interface LocalStorageChangedEventPayload {
+  key: StoredItem
+}
+const createLocalStorageChangedEvent = (
+  key: StoredItem,
+): CustomEvent<LocalStorageChangedEventPayload> => {
+  return new CustomEvent("onLocalStorageChange", { detail: { key } })
 }
 
 export const isLocalStorageEvent = (e: any): e is LocalStorageChangedEvent => {
-  return e instanceof LocalStorageChangedEvent
+  return typeof e?.detail?.key === "string"
 }
 
 const dispatchCustomEvent = (key: StoredItem) =>
-  window.dispatchEvent(new LocalStorageChangedEvent(key))
+  window.dispatchEvent(createLocalStorageChangedEvent(key))
 
 interface IProxyStorage {
   getItem(key: string): string | null
