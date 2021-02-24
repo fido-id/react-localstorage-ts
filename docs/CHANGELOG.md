@@ -1,3 +1,10 @@
+# [1.2.0-beta.1](https://github.com/ModataSRL/react-localstorage-ts/compare/v1.1.2...v1.2.0-beta.1) (2021-02-24)
+
+
+### Features
+
+* add foldable ([312df44](https://github.com/ModataSRL/react-localstorage-ts/commit/312df4499c5af7d013f9c73df2e6e8f7be2ba5ce))
+
 ## [1.1.2](https://github.com/ModataSRL/react-localstorage-ts/compare/v1.1.1...v1.1.2) (2021-02-24)
 
 
