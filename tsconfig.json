@@ -15,8 +15,9 @@
     "target": "es5",
     "lib": ["esnext", "dom"],
     "outDir": "./dist",
+    "jsx": "react",
     "esModuleInterop": true
   },
   "include": ["./src"],
-  "exclude": ["./src/__typetests__"]
+  "exclude": ["./src/__typetests__", "./src/__tests__"]
 }

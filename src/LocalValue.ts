@@ -192,6 +192,30 @@ export const alt = <V>(la: Lazy<LocalValue<V>>) => (lv: LocalValue<V>) => {
   )
 }
 
+export const isError = (lv: LocalValue<any>): boolean => {
+  return fold(
+    () => false,
+    () => true,
+    () => false,
+  )(lv)
+}
+
+export const isMissing = (lv: LocalValue<any>): boolean => {
+  return fold(
+    () => true,
+    () => false,
+    () => false,
+  )(lv)
+}
+
+export const isValid = (lv: LocalValue<any>): boolean => {
+  return fold(
+    () => false,
+    () => false,
+    () => true,
+  )(lv)
+}
+
 export const localValue: MaybeError<URI> = {
   URI,
   map: _map,

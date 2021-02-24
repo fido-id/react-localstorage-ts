@@ -145,7 +145,7 @@ export const makeDefaultedUseLocalItem = <K>(
   defaultValue: HookDefaultValue<K>,
   options?: UseLocalItemOptions,
 ): DefaultedLocalValueHook<K> =>
-  (() => {
+  ((() => {
     const hook = React.useMemo(() => makeUseLocalItem(key, codec, options), [])
     const [item, setItem] = hook()
 
@@ -161,4 +161,4 @@ export const makeDefaultedUseLocalItem = <K>(
     }, [setItem])
 
     return [defaultedItem, setDefaultedItem]
-  }) as DefaultedLocalValueHook<K>
+  }) as unknown) as DefaultedLocalValueHook<K>

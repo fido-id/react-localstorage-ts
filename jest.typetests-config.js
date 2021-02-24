@@ -5,7 +5,6 @@ module.exports = {
       tsConfig: "./tsconfig.json",
     },
   },
-  roots: ["<rootDir>/src"],
   transform: { "^.+typespec\\.ts$": "dts-jest/transform" },
   testMatch: ["**/+(*.)*(typespec).ts"],
   name: "react-localstorage-ts",
