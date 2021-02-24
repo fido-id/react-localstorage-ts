@@ -49,8 +49,8 @@
   "scripts": {
     "postinstall": "is-ci || husky install",
     "prepublishOnly": "pinst --disable",
-    "postpublish": "pinst --enable",
-    "build": "rm -rf ./dist && tsc",
+    "postpublish": "pinst --enable && cp -r package.json ..",
+    "build": "rm -rf ./dist && tsc && cp package.json ./dist",
     "type-test": "jest --config=jest.typetests-config.js --passWithNoTests",
     "runtime-test": "jest --config=jest.config.js --passWithNoTests",
     "test": "yarn type-test && yarn runtime-test",
