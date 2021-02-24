@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = `"Expected 0 arguments, but got 1."`;
+
+exports[`You cannot use non existing stored keys (type) should match snapshot 1`] = `"Argument of type 'string' is not assignable to parameter of type 'never'."`;
+
+exports[`You cannot use uncorrect codecs (type) should match snapshot 1`] = `
+"Argument of type 'TypeC<{ s: StringC; d: DateFromISOStringC; }>' is not assignable to parameter of type 'Type<{ s: string; d: Date; }, string, unknown>'.
+  Types of property 'encode' are incompatible.
+    Type 'Encode<{ s: string; d: Date; }, { s: string; d: string; }>' is not assignable to type 'Encode<{ s: string; d: Date; }, string>'.
+      Type '{ s: string; d: string; }' is not assignable to type 'string'."
+`;
+
+exports[`You must give a default (type) should match snapshot 1`] = `"Expected 3-4 arguments, but got 2."`;
+
+exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"() => [item: Either<Errors, { s: string; d: Date; }>, setItem: (i: { s: string; d: Date; }) => void]"`;

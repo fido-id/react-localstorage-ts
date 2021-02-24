@@ -17,5 +17,6 @@
     "outDir": "./dist",
     "esModuleInterop": true
   },
-  "include": ["./src"]
+  "include": ["./src"],
+  "exclude": ["./src/__typetests__"]
 }
