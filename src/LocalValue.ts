@@ -8,6 +8,8 @@ import { pipe } from "fp-ts/pipeable"
 import { Monad1 } from "fp-ts/Monad"
 import { Alternative1 } from "fp-ts/Alternative"
 import { Applicative1 } from "fp-ts/Applicative"
+import { Foldable1 } from "fp-ts/Foldable"
+import { Monoid } from "fp-ts/Monoid"
 
 export type LocalValue<V> = O.Option<E.Either<t.Errors, V>>
 
@@ -29,6 +31,7 @@ interface MaybeError<F extends URIS>
     Monad1<F>,
     Alternative1<F>,
     Applicative1<F>,
+    Foldable1<F>,
     OptionalGetter<F> {}
 
 // -------------------------------------------------------------------------------------
@@ -78,9 +81,53 @@ const _alt = <V>(lv: LocalValue<V>, la: Lazy<LocalValue<V>>) => {
   )
 }
 
+const _reduce = <A, B>(fa: LocalValue<A>, b: B, f: (b: B, a: A) => B): B => {
+  return fold(
+    () => b,
+    () => b,
+    (a: A) => f(b, a),
+  )(fa)
+}
+const _foldMap = <M>(M: Monoid<M>) => <A>(
+  fa: LocalValue<A>,
+  f: (a: A) => M,
+): M => {
+  return fold(
+    () => M.empty,
+    () => M.empty,
+    (a: A) => f(a),
+  )(fa)
+}
+const _reduceRight = <A, B>(
+  fa: LocalValue<A>,
+  b: B,
+  f: (a: A, b: B) => B,
+): B => {
+  return fold(
+    () => b,
+    () => b,
+    (a: A) => f(a, b),
+  )(fa)
+}
+
 // -------------------------------------------------------------------------------------
 // pipeables
 // -------------------------------------------------------------------------------------
+
+export const fold = <A, B>(
+  onNone: () => B,
+  onError: (e: t.Errors) => B,
+  onValue: (a: A) => B,
+) => (fa: LocalValue<A>): B => {
+  if (fa._tag === "None") {
+    return onNone()
+  }
+  if (fa.value._tag === "Left") {
+    return onError(fa.value.left)
+  }
+
+  return onValue(fa.value.right)
+}
 
 export const getOrElse = <V>(defaultValue: Lazy<V>) => (
   localValue: LocalValue<V>,
@@ -154,4 +201,7 @@ export const localValue: MaybeError<URI> = {
   ap: _ap,
   zero: _zero,
   alt: _alt,
+  reduce: _reduce,
+  reduceRight: _reduceRight,
+  foldMap: _foldMap,
 }
