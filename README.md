@@ -1,6 +1,6 @@
 ![release](https://github.com/ModataSRL/react-localstorage-ts/actions/workflows/release.yml/badge.svg)
 
-#react-localstorage-ts
+# react-localstorage-ts
 
 A small library to wrap the browser's `localstorage`.
 
@@ -8,7 +8,7 @@ A small library to wrap the browser's `localstorage`.
 
 Build on `io-ts` and `fp-ts`, this lib gives you a standard way to access objects stored in your localStorage using `io-ts`'s encoding/decoding abilities.
 
-##quick start
+## quick start
 To use `react-localstorage-ts` you have to follow a few simple steps:
 
 First you need to define the list of "storable" items by expanding the `StoredItems` interface:
@@ -130,11 +130,11 @@ export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
 )
 ```
 
-##contributing
+## contributing
 to commit to this repository there are a few rules:
 - your commits must follow the conventional commit standard (it should be enforced by husky commit-msg hook).
 - your code must be formatted using prettier. 
 - all tests must pass.
 
-##release flow
+## release flow
 [here](https://github.com/semantic-release/semantic-release/blob/1405b94296059c0c6878fb8b626e2c5da9317632/docs/recipes/pre-releases.md) you can find an explanation of the release flow.
