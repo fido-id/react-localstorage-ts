@@ -2,11 +2,20 @@
 
 # react-localstorage-ts
 
-A small library to wrap the browser's `localstorage`.
+A small layer over the browser's localstorage, fallbacks to an in-memory store localstorage is not supported by the browser.  
 
-`react-localstorage-ts` is a small layer over the browser's localstorage and fallbacks to an in-memory store is the browser does not support it.  
+Built on `io-ts` and `fp-ts`, `react-localstorage-ts` gives you a standard way to access objects stored locally using `io-ts`'s encoding/decoding abilities.
 
-Build on `io-ts` and `fp-ts`, this lib gives you a standard way to access objects stored in your localStorage using `io-ts`'s encoding/decoding abilities.
+## install
+
+### yarn
+```shell
+yarn add react-localstorage-ts fp-ts io-ts monocle-ts newtype-ts
+```
+### npm
+```shell
+npm install react-localstorage-ts fp-ts io-ts monocle-ts newtype-ts
+```
 
 ## quick start
 To use `react-localstorage-ts` you have to follow a few simple steps:
@@ -77,25 +86,66 @@ const App: React.FC = () => {
 export default App
 ```
 ## LocalValue
-A new data structure is defined for items stored in localstorage, `LocalValue`. It has instances for some of the most used type-classes
-and you can use it in the same way you usually use your usual `fp-ts` abstractions:
+A new data structure is defined for items stored in localstorage, `LocalValue`. When dealing with a value stored in your localstorage there are three possibilities:
+1. there is no value in your localstorage (optionality).
+2. the value is present, but it is wrong (correctness).
+3. the value is present and it is valid (also correctness).
+
+The structure of LocalValue represent the optionality/correctness dicotomy by using well known contructs, `Option` and `Either`:
 
 ```ts
+import * as t from "io-ts"
+
+type LocalValue<V> = O.Option<E.Either<t.Errors, V>>
+```
+It also has instances for some of the most common type-classes
+and you can use it in the same way you usually use your usual `fp-ts` abstractions:
+
+```tsx
+// LoginLayout.tsx
 import * as LV from "react-localstorage-ts/LocalValue"
-import { useThemeFlavour } from "./localHooks"
+import { useAccessToken } from "./localHooks"
+import { goToLoginPage } from "./router"
 import App from "./App"
 
-const AppContainer: React.FC = () => {
-  const [theme] = useThemeFlavour()
+const LoginLayout: React.FC = ({ children }) => {
+  const [token] = useAccessToken()
 
-  const t = pipe(
-    theme,
-    LV.getOrElse(() => "light"),
+  React.useEffect(() => {
+    if (!LV.isValid) {
+      goToLoginPage()
+    }
+  }, [])
+  
+  return pipe(
+    token,
+    LV.fold(() => null, () => null, () => <>{ children }</>),
   )
+}
 
-  return <App theme={t} />
+// LoginPage.tsx
+import * as LV from "react-localstorage-ts/LocalValue"
+import { goToHomePage } from "./router"
+import { useAccessToken } from "./localHooks"
+
+const LoginPage: React.FC = ({ children }) => {
+  const [token, setToken] = useAccessToken()
+
+  React.useEffect(() => {
+    if (LV.isValid) {
+      goToHomePage()
+    }
+  }, [])
+
+  return (
+    <Form
+      onSubmit={() => api.getToken.then(t => setToken(t))}
+    />
+  )
 }
 ```
+
+**N.B.** when you use `makeDefaultedUseLocalItem`, you loose the optionality of your value, so you are left with an `Either` instead of a `LocalValue`. 
 
 ## defining codecs 
 creating a custom codec to use with `makeUseLocalItem` can be a really non-trivial task, that's why 
@@ -132,7 +182,7 @@ export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
 
 ## contributing
 to commit to this repository there are a few rules:
-- your commits must follow the conventional commit standard (it should be enforced by husky commit-msg hook).
+- your commits must follow the conventional commit standard (it should be enforced by husky `commit-msg` hook).
 - your code must be formatted using prettier. 
 - all tests must pass.
 
