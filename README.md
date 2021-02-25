@@ -2,7 +2,7 @@
 
 # react-localstorage-ts
 
-A small layer over the browser's localstorage, fallbacks to an in-memory store localstorage is not supported by the browser.  
+A small layer over the browser's localstorage, fallbacks to an in-memory store if localstorage is not supported by the browser.  
 
 Built on `io-ts` and `fp-ts`, `react-localstorage-ts` gives you a standard way to access objects stored locally using `io-ts`'s encoding/decoding abilities.
 
