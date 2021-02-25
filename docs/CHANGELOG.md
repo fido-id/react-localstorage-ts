@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/ModataSRL/react-localstorage-ts/compare/v1.2.2...v1.2.3) (2021-02-25)
+
+
+### Bug Fixes
+
+* **ci:** copy package.json ([02032a7](https://github.com/ModataSRL/react-localstorage-ts/commit/02032a70ae02bc55b77b3c9efd00fc9f6ed47737))
+
 ## [1.2.2](https://github.com/ModataSRL/react-localstorage-ts/compare/v1.2.1...v1.2.2) (2021-02-25)
 
 ## [1.2.1](https://github.com/ModataSRL/react-localstorage-ts/compare/v1.2.0...v1.2.1) (2021-02-24)
