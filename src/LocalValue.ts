@@ -26,14 +26,6 @@ interface OptionalGetter<F extends URIS> {
   readonly getOrElse: <A>(f: Lazy<A>) => (fa: Kind<F, A>) => A
 }
 
-interface MaybeError<F extends URIS>
-  extends Functor1<F>,
-    Monad1<F>,
-    Alternative1<F>,
-    Applicative1<F>,
-    Foldable1<F>,
-    OptionalGetter<F> {}
-
 // -------------------------------------------------------------------------------------
 // non-pipeables
 // -------------------------------------------------------------------------------------
@@ -216,7 +208,12 @@ export const isValid = (lv: LocalValue<any>): boolean => {
   )(lv)
 }
 
-export const localValue: MaybeError<URI> = {
+export const localValue: Functor1<URI> &
+  Monad1<URI> &
+  Alternative1<URI> &
+  Applicative1<URI> &
+  Foldable1<URI> &
+  OptionalGetter<URI> = {
   URI,
   map: _map,
   chain: _chain,
