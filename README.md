@@ -2,7 +2,7 @@
 
 # react-localstorage-ts
 
-A small layer over the browser's localstorage, fallbacks to an in-memory store if localstorage is not supported by the browser.  
+A small layer over the browser's localstorage, fallbacks to an in-memory store if localstorage is not supported by the browser.
 
 Built on `io-ts` and `fp-ts`, `react-localstorage-ts` gives you a standard way to access objects stored locally using `io-ts`'s encoding/decoding abilities.
 
@@ -62,7 +62,7 @@ import { useThemeFlavour } from "./localHooks"
 
 const App: React.FC = () => {
   const [theme, setTheme] = useThemeFlavour()
-  
+
   return pipe(
     theme,
     E.fold(
@@ -116,7 +116,7 @@ const LoginLayout: React.FC = ({ children }) => {
       goToLoginPage()
     }
   }, [])
-  
+
   return pipe(
     token,
     LV.fold(() => null, () => null, () => <>{ children }</>),
@@ -145,45 +145,13 @@ const LoginPage: React.FC = ({ children }) => {
 }
 ```
 
-**N.B.** when you use `makeDefaultedUseLocalItem`, you loose the optionality of your value, so you are left with an `Either` instead of a `LocalValue`. 
+**N.B.** when you use `makeDefaultedUseLocalItem`, you loose the optionality of your value, so you are left with an `Either` instead of a `LocalValue`.
 
-## defining codecs 
-creating a custom codec to use with `makeUseLocalItem` can be a really non-trivial task, that's why 
-we ship the utility codec `JSONFromString` that can be used to "ease the pain". Here is an example of how you can use it to define a custom codec:
-
-```ts
-import * as t from "io-ts"
-import * as E from "fp-ts/Either"
-import { pipe } from "fp-ts/function"
-import { JSONFromString, isoJSON } from "react-localstorage-ts/JSONFromString"
-
-const ShapeCodec = t.type({ s: t.string, d: DateFromISOString })
-type ShapeCodec = t.TypeOf<typeof ShapeCodec>
-
-const defaultShape: ShapeCodec = {
-  s: "foo",
-  d: new Date(),
-}
-
-export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
-  "ShapeCodecFromString",
-  ShapeCodec.is,
-  (u, c) => {
-    return pipe(
-      JSONFromString.validate(u, c),
-      E.chain((json) => ShapeCodec.validate(json, c)),
-    )
-  },
-  (v) => {
-    return pipe(v, ShapeCodec.encode, isoJSON.wrap, JSONFromString.encode)
-  },
-)
-```
 
 ## contributing
 to commit to this repository there are a few rules:
 - your commits must follow the conventional commit standard (it should be enforced by husky `commit-msg` hook).
-- your code must be formatted using prettier. 
+- your code must be formatted using prettier.
 - all tests must pass.
 
 ## release flow

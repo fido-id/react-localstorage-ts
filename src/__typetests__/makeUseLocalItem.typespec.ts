@@ -1,9 +1,8 @@
 import * as t from "io-ts"
 import { makeUseLocalItem } from "../useLocalStorage"
-import { DateFromISOString } from "io-ts-types"
+import { DateFromISOString, JsonFromString } from "io-ts-types"
 import { pipe } from "fp-ts/lib/function"
 import * as E from "fp-ts/Either"
-import { isoJSON, JSONFromString } from "../JSONFromString"
 
 declare module "../useLocalStorage" {
   interface StoredItems {
@@ -19,12 +18,13 @@ export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
   ShapeCodec.is,
   (u, c) => {
     return pipe(
-      JSONFromString.validate(u, c),
-      E.chain((json) => ShapeCodec.validate(json, c)),
+      t.string.validate(u, c),
+      E.chain(jsonString => JsonFromString.validate(jsonString, c)),
+      E.chain(json => ShapeCodec.validate(json, c)),
     )
   },
   (v) => {
-    return pipe(v, ShapeCodec.encode, isoJSON.wrap, JSONFromString.encode)
+    return pipe(v, ShapeCodec.encode, JsonFromString.encode)
   },
 )
 

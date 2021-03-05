@@ -65,6 +65,7 @@
     "prepublishOnly": "pinst --disable",
     "postversion": "cp -r package.json ..",
     "postpublish": "pinst --enable",
+    "lint-staged": "lint-staged",
     "build": "rm -rf ./dist && tsc && cp package.json README.md ./dist",
     "type-test": "jest --config=jest.typetests-config.js --passWithNoTests",
     "runtime-test": "jest --config=jest.config.js --passWithNoTests",

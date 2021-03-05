@@ -1,11 +1,10 @@
 import * as t from "io-ts"
 import * as React from "react"
-import { DateFromISOString } from "io-ts-types"
+import { DateFromISOString, JsonFromString } from "io-ts-types"
 import { pipe } from "fp-ts/lib/function"
 import * as E from "fp-ts/Either"
 import { renderHook } from "@testing-library/react-hooks"
 import { cleanup, fireEvent, render } from "@testing-library/react"
-import { isoJSON, JSONFromString } from "../../dist/JSONFromString"
 import { makeDefaultedUseLocalItem } from "../../dist/useLocalStorage"
 
 export const localStorageKey = "shape"
@@ -29,12 +28,13 @@ export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
   ShapeCodec.is,
   (u, c) => {
     return pipe(
-      JSONFromString.validate(u, c),
-      E.chain((json) => ShapeCodec.validate(json, c)),
+      t.string.validate(u, c),
+      E.chain(jsonString => JsonFromString.validate(jsonString, c)),
+      E.chain(json => ShapeCodec.validate(json, c)),
     )
   },
   (v) => {
-    return pipe(v, ShapeCodec.encode, isoJSON.wrap, JSONFromString.encode)
+    return pipe(v, ShapeCodec.encode, JsonFromString.encode)
   },
 )
 
