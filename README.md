@@ -10,44 +10,29 @@ Built on `io-ts` and `fp-ts`, `react-localstorage-ts` gives you a standard way t
 
 ### yarn
 ```shell
-yarn add react-localstorage-ts fp-ts io-ts monocle-ts newtype-ts
+yarn add react-localstorage-ts fp-ts io-ts
 ```
 ### npm
 ```shell
-npm install react-localstorage-ts fp-ts io-ts monocle-ts newtype-ts
+npm install -S react-localstorage-ts fp-ts io-ts
 ```
 
 ## quick start
-To use `react-localstorage-ts` you have to follow a few simple steps:
-
-First you need to define the list of "storable" items by expanding the `StoredItems` interface:
-
-```ts
-// store.ts
-import * as t from "io-ts"
-export const ThemeFlavour = t.union([t.literal("light"), t.literal("dark")])
-export type ThemeFlavour = t.TypeOf<typeof ThemeFlavour>
-
-declare module "react-localstorage-ts" {
-    interface StoredItems {
-        access_token: string
-        theme: ThemeFlavour
-    }
-}
-```
-
-then you create the hooks to read/write the values you just defined:
+First create the hooks to read/write the values you just defined:
 
 ```tsx
 // localHooks.ts
 import * as t from "io-ts"
 import {
-  makeDefaultedUseLocalItem,
   makeUseLocalItem,
 } from "react-localstorage-ts"
 import {ThemeFlavour} from "./store"
 
-export const useThemeFlavour = makeDefaultedUseLocalItem("theme", ThemeFlavour, () => "light")
+export const useThemeFlavour = makeUseLocalItem(
+  "theme",
+  ThemeFlavour,
+  { defaultValue: "light" },
+)
 export const useAccessToken = makeUseLocalItem("access_token", t.string)
 ```
 
@@ -144,9 +129,6 @@ const LoginPage: React.FC = ({ children }) => {
   )
 }
 ```
-
-**N.B.** when you use `makeDefaultedUseLocalItem`, you loose the optionality of your value, so you are left with an `Either` instead of a `LocalValue`.
-
 
 ## contributing
 to commit to this repository there are a few rules:

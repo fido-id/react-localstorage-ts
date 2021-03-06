@@ -1,14 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = `"Expected 0 arguments, but got 1."`;
-
-exports[`You cannot use non existing stored keys (type) should match snapshot 1`] = `"Argument of type 'string' is not assignable to parameter of type 'never'."`;
-
-exports[`You cannot use uncorrect codecs (type) should match snapshot 1`] = `
-"Argument of type 'TypeC<{ s: StringC; d: DateFromISOStringC; }>' is not assignable to parameter of type 'Type<{ s: string; d: Date; }, string, unknown>'.
+exports[`It doesn't work with non-string encoding (type) should match snapshot 1`] = `
+"Argument of type 'TypeC<{ s: StringC; d: DateFromISOStringC; }>' is not assignable to parameter of type 'Type<any, string, unknown>'.
   Types of property 'encode' are incompatible.
-    Type 'Encode<{ s: string; d: Date; }, { s: string; d: string; }>' is not assignable to type 'Encode<{ s: string; d: Date; }, string>'.
+    Type 'Encode<{ s: string; d: Date; }, { s: string; d: string; }>' is not assignable to type 'Encode<any, string>'.
       Type '{ s: string; d: string; }' is not assignable to type 'string'."
 `;
 
-exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"() => [item: Option<Either<Errors, { s: string; d: Date; }>>, setItem: (i: Option<{ s: string; d: Date; }>) => void]"`;
+exports[`It works with string encoding (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;
+
+exports[`You can pass a valid set of options (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;
+
+exports[`You cannot pass an invalid set of options (type) should match snapshot 1`] = `
+"Type '{ foo: number; }' is not assignable to type '{ s: string; d: Date; }'.
+  Object literal may only specify known properties, and 'foo' does not exist in type '{ s: string; d: Date; }'."
+`;
+
+exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = `"Expected 0 arguments, but got 1."`;
+
+exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;

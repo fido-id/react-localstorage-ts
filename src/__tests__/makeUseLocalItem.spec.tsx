@@ -1,16 +1,38 @@
 import * as React from "react"
-import { pipe } from "fp-ts/lib/function"
+import * as t from "io-ts"
 import * as O from "fp-ts/Option"
+import * as E from "fp-ts/Either"
+import { pipe } from "fp-ts/lib/function"
+import * as LV from "../LocalValue"
+import { DateFromISOString, JsonFromString } from "io-ts-types"
 import { renderHook } from "@testing-library/react-hooks"
 import { cleanup, fireEvent, render } from "@testing-library/react"
-import { makeUseLocalItem } from "../../dist/useLocalStorage"
-import * as LV from "../../dist/LocalValue"
+import { makeUseLocalItem } from "../useLocalStorage"
 
-import {
-  defaultShape,
-  localStorageKey,
-  ShapeCodecFromString,
-} from "./makeDefaultedUseLocalItem.spec"
+export const localStorageKey = "shape"
+
+export const ShapeCodec = t.type({ s: t.string, d: DateFromISOString })
+export type ShapeCodec = t.TypeOf<typeof ShapeCodec>
+
+export const defaultShape: ShapeCodec = {
+  s: "foo",
+  d: new Date(1600732800 * 1000),
+}
+
+export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
+  "ShapeCodecFromString",
+  ShapeCodec.is,
+  (u, c) => {
+    return pipe(
+      t.string.validate(u, c),
+      E.chain(jsonString => JsonFromString.validate(jsonString, c)),
+      E.chain(json => ShapeCodec.validate(json, c)),
+    )
+  },
+  (v) => {
+    return pipe(v, ShapeCodec.encode, JsonFromString.encode)
+  },
+)
 
 const useShape = makeUseLocalItem("shape", ShapeCodecFromString)
 

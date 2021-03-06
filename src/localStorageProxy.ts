@@ -1,4 +1,4 @@
-import { StoredItem } from "./useLocalStorage"
+export const storeChangedCustomEvent = "storeChangedCustomEvent"
 
 export function localStorageAvailable(): boolean {
   try {
@@ -26,23 +26,23 @@ export function localStorageAvailable(): boolean {
 }
 
 export interface LocalStorageChangedEvent {
-  detail: { key: StoredItem }
+  detail: { key: string }
 }
 
 interface LocalStorageChangedEventPayload {
-  key: StoredItem
+  key: string
 }
 const createLocalStorageChangedEvent = (
-  key: StoredItem,
+  key: string,
 ): CustomEvent<LocalStorageChangedEventPayload> => {
-  return new CustomEvent("onLocalStorageChange", { detail: { key } })
+  return new CustomEvent(storeChangedCustomEvent, { detail: { key } })
 }
 
 export const isLocalStorageEvent = (e: any): e is LocalStorageChangedEvent => {
   return typeof e?.detail?.key === "string"
 }
 
-const dispatchCustomEvent = (key: StoredItem) =>
+const dispatchCustomEvent = (key: string) =>
   window.dispatchEvent(createLocalStorageChangedEvent(key))
 
 interface IProxyStorage {
@@ -52,16 +52,16 @@ interface IProxyStorage {
 }
 
 export class LocalStorageProxy implements IProxyStorage {
-  getItem(key: StoredItem): string | null {
+  getItem(key: string): string | null {
     return localStorage.getItem(key)
   }
 
-  setItem(key: StoredItem, value: string): void {
+  setItem(key: string, value: string): void {
     localStorage.setItem(key, value)
     dispatchCustomEvent(key)
   }
 
-  removeItem(key: StoredItem): void {
+  removeItem(key: string): void {
     localStorage.removeItem(key)
     dispatchCustomEvent(key)
   }
@@ -70,16 +70,16 @@ export class LocalStorageProxy implements IProxyStorage {
 export class MemoryStorageProxy implements IProxyStorage {
   private _memoryStorage = new Map<string, string>()
 
-  getItem(key: StoredItem): string | null {
+  getItem(key: string): string | null {
     return this._memoryStorage.get(key) ?? null
   }
 
-  setItem(key: StoredItem, value: string): void {
+  setItem(key: string, value: string): void {
     this._memoryStorage.set(key, value)
     dispatchCustomEvent(key)
   }
 
-  removeItem(key: StoredItem): void {
+  removeItem(key: string): void {
     this._memoryStorage.delete(key)
     dispatchCustomEvent(key)
   }

@@ -1,164 +1,112 @@
 import * as React from "react"
 import * as O from "fp-ts/Option"
-import * as E from "fp-ts/Either"
 import * as t from "io-ts"
-import * as LV from "./LocalValue"
-import { Lazy, pipe } from "fp-ts/lib/function"
+import { pipe } from "fp-ts/lib/function"
 import {
   isLocalStorageEvent,
   LocalStorageChangedEvent,
   localStorageProxy,
   MemoryStorageProxy,
+  storeChangedCustomEvent,
 } from "./localStorageProxy"
-
-/**
- *  from outside you augment "StoredItems" like this:
- *
- *  declare module "react-localstorage-ts" {
- *    interface StoredItems {
- *      readonly access_token: string
- *    }
- *  }
- */
-
-export interface StoredItems {}
-export type StoredItem = keyof StoredItems
 
 const memoryStore = new MemoryStorageProxy()
 
-interface UseLocalItemOptions {
+interface UseLocalItemOptions<C extends t.Type<any, string>> {
   useMemorySore?: boolean
+  defaultValue?: t.TypeOf<C>
 }
 
-const getStore = (o?: UseLocalItemOptions) =>
+const getStore = <O extends UseLocalItemOptions<any>>(o?: O) =>
   o?.useMemorySore ?? false ? memoryStore : localStorageProxy
 
-export const getLocalElement = (
-  t: StoredItem,
-  options?: UseLocalItemOptions,
+export const getLocalElement = <O extends UseLocalItemOptions<any>>(
+  t: string,
+  options?: O,
 ): O.Option<string> => {
   const store = getStore(options)
   return O.fromNullable(store.getItem(t))
 }
 
-export const setLocalElement = (
-  t: StoredItem,
+export const setLocalElement = <O extends UseLocalItemOptions<any>>(
+  t: string,
   v: string,
-  options?: UseLocalItemOptions,
+  options?: O,
 ): void => {
   const store = getStore(options)
   store.setItem(t, v)
 }
 
-export const removeLocalElement = (
-  t: StoredItem,
-  options?: UseLocalItemOptions,
+export const removeLocalElement = <O extends UseLocalItemOptions<any>>(
+  t: string,
+  options?: O,
 ): void => {
   const store = getStore(options)
   store.removeItem(t)
 }
 
-export type LocalValueHook<K> = K extends StoredItem
-  ? () => [
-      item: O.Option<t.Validation<StoredItems[K]>>,
-      setItem: (i: O.Option<StoredItems[K]>) => void,
-    ]
-  : never
+export type LocalValueHook<C extends t.Type<any, string>> = () => [
+  item: O.Option<t.Validation<t.TypeOf<C>>>,
+  setItem: (i: O.Option<t.TypeOf<C>>) => void,
+]
 
-export type DefaultedLocalValueHook<K> = K extends StoredItem
-  ? () => [
-      item: t.Validation<StoredItems[K]>,
-      setItem: (i: StoredItems[K]) => void,
-    ]
-  : never
+export const makeUseLocalItem = <C extends t.Type<any, string>>(
+  key: string,
+  codec: C,
+  options?: UseLocalItemOptions<C>,
+): LocalValueHook<C> => () => {
+  const [item, setItem] = React.useState(getLocalElement(key, options))
 
-type StoreItemOrNever<K> = K extends StoredItem ? K : never
-type StoreItemValueOrNever<K> = K extends StoredItem ? StoredItems[K] : never
+  const itemMemo = React.useMemo(() => {
+    return pipe(item, O.map(codec.decode))
+  }, [item])
 
-export const makeUseLocalItem = <K>(
-  key: StoreItemOrNever<K>,
-  codec: t.Type<StoreItemValueOrNever<K>, string>,
-  options?: UseLocalItemOptions,
-): LocalValueHook<K> =>
-  (() => {
-    const [item, setItem] = React.useState(getLocalElement(key, options))
+  const setItemMemo = React.useMemo(() => {
+    return (i: O.Option<t.TypeOf<C>>) =>
+      pipe(
+        i,
+        O.map(codec.encode),
+        O.fold(
+          () => {
+            removeLocalElement(key, options)
+            setItem(getLocalElement(key, options))
+          },
+          (newValue) => {
+            setLocalElement(key, newValue, options)
+            setItem(getLocalElement(key, options))
+          },
+        ),
+      )
+  }, [item])
 
-    const itemMemo = React.useMemo(() => {
-      return pipe(item, O.map(codec.decode))
-    }, [item])
-
-    const setItemMemo = React.useMemo(() => {
-      return (i: O.Option<StoreItemValueOrNever<K>>) =>
-        pipe(
-          i,
-          O.map(codec.encode),
-          O.fold(
-            () => {
-              removeLocalElement(key, options)
-              setItem(getLocalElement(key, options))
-            },
-            (newValue) => {
-              setLocalElement(key, newValue, options)
-              setItem(getLocalElement(key, options))
-            },
-          ),
-        )
-    }, [item])
-
-    const onLocalStorageChange = (
-      event: StorageEvent | LocalStorageChangedEvent,
-    ) => {
-      if (isLocalStorageEvent(event)) {
-        if (event.detail.key === key) {
-          setItem(getLocalElement(key, options))
-        }
-      } else {
-        if (event.key === key) {
-          setItem(getLocalElement(key, options))
-        }
+  const onLocalStorageChange = (
+    event: StorageEvent | LocalStorageChangedEvent,
+  ) => {
+    if (isLocalStorageEvent(event)) {
+      if (event.detail.key === key) {
+        setItem(getLocalElement(key, options))
+      }
+    } else {
+      if (event.key === key) {
+        setItem(getLocalElement(key, options))
       }
     }
+  }
 
-    React.useEffect(() => {
-      const listener = (e: Event) => {
-        onLocalStorageChange(e as StorageEvent)
-      }
+  React.useEffect(() => {
+    const listener = (e: Event) => {
+      onLocalStorageChange(e as StorageEvent)
+    }
 
-      window.addEventListener("onLocalStorageChange", listener)
-      // The storage event only works in the context of other documents (eg. other browser tabs)
-      window.addEventListener("storage", listener)
+    window.addEventListener(storeChangedCustomEvent, listener)
+    // The storage event only works in the context of other documents (eg. other browser tabs)
+    window.addEventListener("storage", listener)
 
-      return () => {
-        window.removeEventListener("onLocalStorageChange", listener)
-        window.removeEventListener("storage", listener)
-      }
-    }, [key])
+    return () => {
+      window.removeEventListener(storeChangedCustomEvent, listener)
+      window.removeEventListener("storage", listener)
+    }
+  }, [key])
 
-    return [itemMemo, setItemMemo]
-  }) as LocalValueHook<K>
-
-type HookDefaultValue<K> = K extends StoredItem ? Lazy<StoredItems[K]> : never
-
-export const makeDefaultedUseLocalItem = <K>(
-  key: StoreItemOrNever<K>,
-  codec: t.Type<StoreItemValueOrNever<K>, string>,
-  defaultValue: HookDefaultValue<K>,
-  options?: UseLocalItemOptions,
-): DefaultedLocalValueHook<K> =>
-  ((() => {
-    const hook = React.useMemo(() => makeUseLocalItem(key, codec, options), [])
-    const [item, setItem] = hook()
-
-    const defaultedItem = React.useMemo(() => {
-      return pipe(
-        item,
-        LV.toEither(() => E.of(defaultValue())),
-      )
-    }, [item])
-
-    const setDefaultedItem = React.useMemo(() => {
-      return (i: StoreItemOrNever<K>) => setItem(O.some(i))
-    }, [setItem])
-
-    return [defaultedItem, setDefaultedItem]
-  }) as unknown) as DefaultedLocalValueHook<K>
+  return [itemMemo, setItemMemo]
+}
