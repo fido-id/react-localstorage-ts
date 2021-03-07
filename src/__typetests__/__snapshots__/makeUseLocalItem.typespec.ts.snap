@@ -1,10 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`It doesn't work with non-string encoding (type) should match snapshot 1`] = `
-"Argument of type 'TypeC<{ s: StringC; d: DateFromISOStringC; }>' is not assignable to parameter of type 'Type<any, string, unknown>'.
-  Types of property 'encode' are incompatible.
-    Type 'Encode<{ s: string; d: Date; }, { s: string; d: string; }>' is not assignable to type 'Encode<any, string>'.
-      Type '{ s: string; d: string; }' is not assignable to type 'string'."
+"Argument of type 'TypeC<{ s: StringC; d: DateFromISOStringC; }>' is not assignable to parameter of type 'ValidCodec'.
+  The types returned by 'encode(...)' are incompatible between these types.
+    Type '{ s: string; d: string; }' is not assignable to type 'string'."
 `;
 
 exports[`It works with string encoding (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;

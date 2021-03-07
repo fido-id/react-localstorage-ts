@@ -22,6 +22,7 @@ export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
   },
 )
 
+ShapeCodecFromString.encode
 const useShape = makeUseLocalItem("shape", ShapeCodecFromString)
 
 // @dts-jest:pass:snap It works with string encoding
