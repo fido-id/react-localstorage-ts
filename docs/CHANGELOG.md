@@ -1,3 +1,13 @@
+# [2.0.0-beta.1](https://github.com/ModataSRL/react-localstorage-ts/compare/v1.2.7...v2.0.0-beta.1) (2021-03-07)
+
+
+* refactor!: local-value as sum type ([641ed85](https://github.com/ModataSRL/react-localstorage-ts/commit/641ed85bad00bb13c2f484b8e0d2463db9b44690))
+
+
+### BREAKING CHANGES
+
+* modified codec apis
+
 ## [1.2.9](https://github.com/fido-id/react-localstorage-ts/compare/v1.2.8...v1.2.9) (2021-03-08)
 
 ## [1.2.8](https://github.com/fido-id/react-localstorage-ts/compare/v1.2.7...v1.2.8) (2021-03-08)
