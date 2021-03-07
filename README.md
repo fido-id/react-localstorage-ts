@@ -4,17 +4,17 @@
 
 A small layer over the browser's localstorage, fallbacks to an in-memory store if localstorage is not supported by the browser.
 
-Built on `io-ts` and `fp-ts`, `react-localstorage-ts` gives you a standard way to access objects stored locally using `io-ts`'s encoding/decoding abilities.
+Built on with `fp-ts` in mind, `react-localstorage-ts` gives you a standard way to access objects stored locally.
 
 ## install
 
 ### yarn
 ```shell
-yarn add react-localstorage-ts fp-ts io-ts
+yarn add react-localstorage-ts
 ```
 ### npm
 ```shell
-npm install -S react-localstorage-ts fp-ts io-ts
+npm install -S react-localstorage-ts
 ```
 
 ## quick start
@@ -26,7 +26,7 @@ import * as t from "io-ts"
 import {
   makeUseLocalItem,
 } from "react-localstorage-ts"
-import {ThemeFlavour} from "./store"
+import {ThemeFlavour} from "./codecs"
 
 export const useThemeFlavour = makeUseLocalItem(
   "theme",
@@ -76,12 +76,23 @@ A new data structure is defined for items stored in localstorage, `LocalValue`. 
 2. the value is present, but it is wrong (correctness).
 3. the value is present and it is valid (also correctness).
 
-The structure of LocalValue represent the optionality/correctness dicotomy by using well known contructs, `Option` and `Either`:
+LocalValue introduces a sum type that represents the optionality/correctness dicotomy:
 
 ```ts
-import * as t from "io-ts"
+export interface Absent {
+  readonly _tag: "Absent"
+}
 
-type LocalValue<V> = O.Option<E.Either<t.Errors, V>>
+export interface Invalid<E> {
+  readonly _tag: "Invalid"
+  readonly errors: E
+}
+export interface Valid<A> {
+  readonly _tag: "Valid"
+  readonly value: A
+}
+
+export type LocalValue<E, A> = Absent | Invalid<E> | Valid<A>
 ```
 It also has instances for some of the most common type-classes
 and you can use it in the same way you usually use your usual `fp-ts` abstractions:
@@ -104,7 +115,7 @@ const LoginLayout: React.FC = ({ children }) => {
 
   return pipe(
     token,
-    LV.fold(() => null, () => null, () => <>{ children }</>),
+    LV.fold(() => null, () => null, () => <>{ children }</>), // N.B. when you don't want to deal with the "incorrect" cases, you can use fold2 and only define two handling funcitons
   )
 }
 
@@ -124,11 +135,36 @@ const LoginPage: React.FC = ({ children }) => {
 
   return (
     <Form
-      onSubmit={() => api.getToken.then(t => setToken(t))}
+      onSubmit={
+        (formValues) => api
+          .getToken(formValues)
+          .then(t => setToken(t))
+      }
     />
   )
 }
 ```
+
+## defining codecs
+Given that browsers only allow you to store serialized data in string format, the only accepted codecs are of the form `Codec<E, string, B>`, where `E` is the shape of the decoding error, `B` is the shape of the runtime error and `string` is the type resulting after encoding.
+
+
+---
+> N.B. this is only useful if you use `io-ts`.
+
+As this kind of string conversion is very often just a JSON stringification of your encoded value, we export a utility that conveniently transform `io-ts` codecs into valid ones by first applying your encoding and then stringifying the result:
+
+```ts
+import { fromIoTsCodec } from "react-localstorage-ts/io-ts"
+
+const WrongCodec = t.type({ s: t.string, d: DateFromISOString })
+
+const CorrectCodec = fromIoTsCodec(WrongCodec)
+```
+
+## updating localstorage from outside react components
+
+If you want to update your localstorage (and having your components "react" to the change) you can use the exported utilities `getLocalElement`, `setLocalElement` and `removeLocalElement`.
 
 ## contributing
 to commit to this repository there are a few rules:

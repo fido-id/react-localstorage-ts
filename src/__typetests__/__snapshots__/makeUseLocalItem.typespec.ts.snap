@@ -6,9 +6,9 @@ exports[`It doesn't work with non-string encoding (type) should match snapshot 1
     Type '{ s: string; d: string; }' is not assignable to type 'string'."
 `;
 
-exports[`It works with string encoding (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;
+exports[`It works with string encoding (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;
 
-exports[`You can pass a valid set of options (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;
+exports[`You can pass a valid set of options (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;
 
 exports[`You cannot pass an invalid set of options (type) should match snapshot 1`] = `
 "Type '{ foo: number; }' is not assignable to type '{ s: string; d: Date; }'.
@@ -17,4 +17,4 @@ exports[`You cannot pass an invalid set of options (type) should match snapshot 
 
 exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = `"Expected 0 arguments, but got 1."`;
 
-exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"LocalValueHook<Type<{ s: string; d: Date; }, string, unknown>>"`;
+exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;

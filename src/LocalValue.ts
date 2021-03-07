@@ -1,87 +1,101 @@
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
-import * as t from "io-ts"
-import { Kind, URIS } from "fp-ts/HKT"
-import { Functor1 } from "fp-ts/Functor"
-import { identity, Lazy } from "fp-ts/function"
+import { Kind2, URIS2 } from "fp-ts/HKT"
+import { Functor2 } from "fp-ts/Functor"
+import { Lazy } from "fp-ts/function"
 import { pipe } from "fp-ts/pipeable"
-import { Monad1 } from "fp-ts/Monad"
-import { Alternative1 } from "fp-ts/Alternative"
-import { Applicative1 } from "fp-ts/Applicative"
-import { Foldable1 } from "fp-ts/Foldable"
+import { Monad2 } from "fp-ts/Monad"
+import { Alternative2 } from "fp-ts/Alternative"
+import { Applicative2 } from "fp-ts/Applicative"
+import { Foldable2 } from "fp-ts/Foldable"
 import { Monoid } from "fp-ts/Monoid"
+import { Either } from "./Either"
+import { Option } from "./Option"
 
-export type LocalValue<V> = O.Option<E.Either<t.Errors, V>>
+export interface Absent {
+  readonly _tag: "Absent"
+}
+
+export interface Invalid<E> {
+  readonly _tag: "Invalid"
+  readonly errors: E
+}
+export interface Valid<A> {
+  readonly _tag: "Valid"
+  readonly value: A
+}
+
+export type LocalValue<E, A> = Absent | Invalid<E> | Valid<A>
 
 export const URI = "LocalValue"
 export type URI = typeof URI
 
 declare module "fp-ts/HKT" {
-  interface URItoKind<A> {
-    readonly [URI]: LocalValue<A>
+  interface URItoKind2<E, A> {
+    readonly [URI]: LocalValue<E, A>
   }
 }
 
-interface OptionalGetter<F extends URIS> {
-  readonly getOrElse: <A>(f: Lazy<A>) => (fa: Kind<F, A>) => A
+interface OptionalGetter<F extends URIS2> {
+  readonly getOrElse: <E, A>(f: Lazy<A>) => (fa: Kind2<F, E, A>) => A
 }
 
 // -------------------------------------------------------------------------------------
 // non-pipeables
 // -------------------------------------------------------------------------------------
 
-const _map = <A, B>(localValue: LocalValue<A>, f: (a: A) => B): LocalValue<B> =>
-  pipe(
-    localValue,
-    O.map((v) => E.map(f)(v)),
-  )
+const _map = <E, A, B>(
+  lv: LocalValue<E, A>,
+  f: (a: A) => B,
+): LocalValue<E, B> => {
+  if (isAbsent(lv) || isInvalid(lv)) {
+    return lv
+  }
 
-const _ap = <A, B>(
-  apLocalValue: LocalValue<(a: A) => B>,
-  localValue: LocalValue<A>,
-): LocalValue<B> => {
-  return _chain(apLocalValue, (f) => _map(localValue, (a) => f(a)))
+  return valid(f(lv.value))
 }
 
-const _chain = <A, B>(
-  localValue: LocalValue<A>,
-  f: (a: A) => LocalValue<B>,
-): LocalValue<B> =>
-  pipe(
-    localValue,
-    O.chain((v) => {
-      if (E.isRight(v)) {
-        return f(v.right)
-      } else {
-        return O.of(v)
-      }
-    }),
-  )
-
-const _zero = () => O.none
-
-const _alt = <V>(lv: LocalValue<V>, la: Lazy<LocalValue<V>>) => {
-  return pipe(
-    lv,
-    O.chain((e) => {
-      if (E.isLeft(e)) {
-        return la()
-      } else {
-        return O.some(e)
-      }
-    }),
-  )
+const _ap = <E, A, B>(
+  apLocalValue: LocalValue<E, (a: A) => B>,
+  lv: LocalValue<E, A>,
+): LocalValue<E, B> => {
+  return _chain(apLocalValue, (f) => _map(lv, (a) => f(a)))
 }
 
-const _reduce = <A, B>(fa: LocalValue<A>, b: B, f: (b: B, a: A) => B): B => {
+const _chain = <E, A, B>(
+  lv: LocalValue<E, A>,
+  f: (a: A) => LocalValue<E, B>,
+): LocalValue<E, B> => {
+  if (isAbsent(lv) || isInvalid(lv)) {
+    return lv
+  }
+
+  return f(lv.value)
+}
+
+const _zero = () => absent
+
+const _alt = <E, A>(lv: LocalValue<E, A>, la: Lazy<LocalValue<E, A>>) => {
+  if (isAbsent(lv) || isInvalid(lv)) {
+    return lv
+  }
+
+  return la()
+}
+
+const _reduce = <E, A, B>(
+  fa: LocalValue<E, A>,
+  b: B,
+  f: (b: B, a: A) => B,
+): B => {
   return fold(
     () => b,
     () => b,
     (a: A) => f(b, a),
   )(fa)
 }
-const _foldMap = <M>(M: Monoid<M>) => <A>(
-  fa: LocalValue<A>,
+const _foldMap = <M>(M: Monoid<M>) => <E, A>(
+  fa: LocalValue<E, A>,
   f: (a: A) => M,
 ): M => {
   return fold(
@@ -90,8 +104,8 @@ const _foldMap = <M>(M: Monoid<M>) => <A>(
     (a: A) => f(a),
   )(fa)
 }
-const _reduceRight = <A, B>(
-  fa: LocalValue<A>,
+const _reduceRight = <E, A, B>(
+  fa: LocalValue<E, A>,
   b: B,
   f: (a: A, b: B) => B,
 ): B => {
@@ -106,113 +120,121 @@ const _reduceRight = <A, B>(
 // pipeables
 // -------------------------------------------------------------------------------------
 
-export const fold = <A, B>(
+export const fold = <E, A, B>(
   onNone: () => B,
-  onError: (e: t.Errors) => B,
+  onError: (e: E) => B,
   onValue: (a: A) => B,
-) => (fa: LocalValue<A>): B => {
-  if (fa._tag === "None") {
+) => (fa: LocalValue<E, A>): B => {
+  if (isAbsent(fa)) {
     return onNone()
   }
-  if (fa.value._tag === "Left") {
-    return onError(fa.value.left)
+  if (isInvalid(fa)) {
+    return onError(fa.errors)
   }
 
-  return onValue(fa.value.right)
+  return onValue(fa.value)
 }
 
-export const getOrElse = <V>(defaultValue: Lazy<V>) => (
-  localValue: LocalValue<V>,
-): V =>
-  pipe(localValue, O.map(E.getOrElse(defaultValue)), O.getOrElse(defaultValue))
+export const fold2 = <E, A, B>(onNone: () => B, onValue: (a: A) => B) => (
+  fa: LocalValue<E, A>,
+): B => {
+  if (isAbsent(fa) || isInvalid(fa)) {
+    return onNone()
+  }
 
-export const of = <A>(v: A): LocalValue<A> => O.of(E.of(v))
+  return onValue(fa.value)
+}
 
-export const chain = <A, B>(f: (a: A) => LocalValue<B>) => (
-  localValue: LocalValue<A>,
-): LocalValue<B> =>
+export const getOrElse = <E, A>(defaultValue: Lazy<A>) => (
+  lv: LocalValue<E, A>,
+): A => {
+  if (isAbsent(lv) || isInvalid(lv)) {
+    return defaultValue()
+  }
+
+  return lv.value
+}
+
+export const of = <E, A>(v: A): LocalValue<E, A> => valid(v)
+
+export const chain = <E, A, B>(f: (a: A) => LocalValue<E, B>) => (
+  lv: LocalValue<E, A>,
+): LocalValue<E, B> => {
+  return _chain(lv, f)
+}
+
+export const map = <E, A, B>(f: (a: A) => B) => (
+  lv: LocalValue<E, A>,
+): LocalValue<E, B> => {
+  return _map(lv, f)
+}
+
+export const fromOption = <E, A>(o: Option<A>): LocalValue<E, A> =>
   pipe(
-    localValue,
-    O.chain((v) => {
-      if (E.isRight(v)) {
-        return f(v.right)
-      } else {
-        return O.of(v)
-      }
-    }),
+    o,
+    O.fold(() => absent, valid),
   )
 
-export const map = <A, B>(f: (a: A) => B) => (
-  localValue: LocalValue<A>,
-): LocalValue<B> =>
+export const fromEither = <E, A>(e: Either<E, A>): LocalValue<E, A> =>
   pipe(
-    localValue,
-    O.map((v) => E.map(f)(v)),
+    e,
+    E.fold(invalid, (v) => valid(v) as LocalValue<E, A>),
   )
 
-export const fromOption = <V>(o: O.Option<V>): LocalValue<V> =>
-  pipe(o, O.map(E.right))
-
-export const fromEither = <V>(e: E.Either<t.Errors, V>): LocalValue<V> =>
-  O.some(e)
-
-export const toOption = <V>(v: LocalValue<V>) =>
+export const toOption = <E, A>(v: LocalValue<E, A>) =>
   pipe(
     v,
-    O.chain(
-      E.fold(
-        () => O.none,
-        (v) => O.some(v),
-      ),
+    fold(
+      () => O.none,
+      () => O.none,
+      (v) => O.some(v),
     ),
   )
 
-export const toEither = <V>(onNone: Lazy<t.Validation<V>>) => (
-  v: LocalValue<V>,
-) => pipe(v, O.fold(onNone, identity))
-
-export const alt = <V>(la: Lazy<LocalValue<V>>) => (lv: LocalValue<V>) => {
+export const toEither = <E, A>(onNone: Lazy<E>) => (
+  v: LocalValue<E, A>,
+): Either<E, A> => {
   return pipe(
-    lv,
-    O.chain((e) => {
-      if (E.isLeft(e)) {
-        return la()
-      } else {
-        return O.some(e)
-      }
-    }),
+    v,
+    fold(() => E.left(onNone()), E.left, E.right),
   )
 }
 
-export const isError = (lv: LocalValue<any>): boolean => {
-  return fold(
-    () => false,
-    () => true,
-    () => false,
-  )(lv)
+export const alt = <E, A>(la: Lazy<LocalValue<E, A>>) => (
+  lv: LocalValue<E, A>,
+) => {
+  return _alt(lv, la)
 }
 
-export const isMissing = (lv: LocalValue<any>): boolean => {
-  return fold(
-    () => true,
-    () => false,
-    () => false,
-  )(lv)
+export const isAbsent = (lv: LocalValue<any, any>): lv is Absent => {
+  return lv._tag === "Absent"
 }
 
-export const isValid = (lv: LocalValue<any>): boolean => {
-  return fold(
-    () => false,
-    () => false,
-    () => true,
-  )(lv)
+export const isValid = <A>(lv: LocalValue<any, A>): lv is Valid<A> => {
+  return lv._tag === "Valid"
 }
 
-export const localValue: Functor1<URI> &
-  Monad1<URI> &
-  Alternative1<URI> &
-  Applicative1<URI> &
-  Foldable1<URI> &
+export const isInvalid = <E>(lv: LocalValue<E, any>): lv is Invalid<E> => {
+  return lv._tag === "Invalid"
+}
+
+export const absent: LocalValue<never, never> = {
+  _tag: "Absent",
+}
+
+export const valid = <A>(v: A): LocalValue<never, A> => {
+  return { _tag: "Valid", value: v }
+}
+
+export const invalid = <E>(e: E): LocalValue<E, never> => {
+  return { _tag: "Invalid", errors: e }
+}
+
+export const localValue: Functor2<URI> &
+  Monad2<URI> &
+  Alternative2<URI> &
+  Applicative2<URI> &
+  Foldable2<URI> &
   OptionalGetter<URI> = {
   URI,
   map: _map,

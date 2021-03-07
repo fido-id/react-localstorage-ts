@@ -1,13 +1,13 @@
 import * as React from "react"
 import * as t from "io-ts"
 import * as O from "fp-ts/Option"
-import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/lib/function"
 import * as LV from "../LocalValue"
-import { DateFromISOString, JsonFromString } from "io-ts-types"
+import { DateFromISOString } from "io-ts-types"
 import { renderHook } from "@testing-library/react-hooks"
 import { cleanup, fireEvent, render } from "@testing-library/react"
 import { makeUseLocalItem } from "../useLocalStorage"
+import { fromIoTsCodec } from "../io-ts"
 
 export const localStorageKey = "shape"
 
@@ -19,22 +19,9 @@ export const defaultShape: ShapeCodec = {
   d: new Date(1600732800 * 1000),
 }
 
-export const ShapeCodecFromString = new t.Type<ShapeCodec, string>(
-  "ShapeCodecFromString",
-  ShapeCodec.is,
-  (u, c) => {
-    return pipe(
-      t.string.validate(u, c),
-      E.chain(jsonString => JsonFromString.validate(jsonString, c)),
-      E.chain(json => ShapeCodec.validate(json, c)),
-    )
-  },
-  (v) => {
-    return pipe(v, ShapeCodec.encode, JsonFromString.encode)
-  },
-)
+const CorrectCodec = fromIoTsCodec(ShapeCodec)
 
-const useShape = makeUseLocalItem("shape", ShapeCodecFromString)
+const useShape = makeUseLocalItem("shape", CorrectCodec)
 
 afterEach(() => {
   cleanup()
@@ -45,7 +32,7 @@ describe("makeUseLocalItem", () => {
   it("a valid value is correctly accesses", () => {
     localStorage.setItem(
       localStorageKey,
-      ShapeCodecFromString.encode(defaultShape),
+      CorrectCodec.encode(defaultShape),
     )
 
     const { result } = renderHook(() => useShape())
@@ -58,13 +45,13 @@ describe("makeUseLocalItem", () => {
 
     const { result } = renderHook(() => useShape())
 
-    expect(LV.isError(result.current[0])).toBe(true)
+    expect(LV.isInvalid(result.current[0])).toBe(true)
   })
 
   it("a missing value is correctly accesses", () => {
     const { result } = renderHook(() => useShape())
 
-    expect(result.current[0]).toEqual(O.none)
+    expect(result.current[0]).toEqual(LV.absent)
   })
 
   it("component should rerender when local storage changes", () => {
@@ -95,7 +82,7 @@ describe("makeUseLocalItem", () => {
 
     localStorage.setItem(
       localStorageKey,
-      ShapeCodecFromString.encode(defaultShape),
+      CorrectCodec.encode(defaultShape),
     )
 
     const testComponent = render(<Component />)

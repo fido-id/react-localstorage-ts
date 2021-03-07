@@ -10,10 +10,14 @@ import {
 } from "./localStorageProxy"
 import { Codec, decodeType, runtimeType } from "./Codec"
 import { Option } from "./Option"
+import { Absent, Valid } from "./LocalValue"
+import * as LV from "./LocalValue"
 
 const memoryStore = new MemoryStorageProxy()
 
-type ValidCodec = Codec<string, any, any>
+type ValidCodec = Codec<any, string, any>
+
+type ValidLocalValue<A> = Absent | Valid<A>
 
 interface UseLocalItemOptions<C extends ValidCodec> {
   useMemorySore?: boolean
@@ -49,8 +53,8 @@ export const removeLocalElement = <O extends UseLocalItemOptions<any>>(
 }
 
 export type LocalValueHook<C extends ValidCodec> = () => [
-  item: Option<decodeType<C>>,
-  setItem: (i: Option<runtimeType<C>>) => void,
+  item: decodeType<C>,
+  setItem: (i: ValidLocalValue<runtimeType<C>>) => void,
 ]
 
 export const makeUseLocalItem = <C extends ValidCodec>(
@@ -62,15 +66,15 @@ export const makeUseLocalItem = <C extends ValidCodec>(
     const [item, setItem] = React.useState(getLocalElement(key, options))
 
     const itemMemo = React.useMemo(() => {
-      return pipe(item, O.map(codec.decode))
+      return pipe(item, LV.fromOption, LV.chain(codec.decode))
     }, [item])
 
     const setItemMemo = React.useMemo(() => {
-      return (i: Option<runtimeType<C>>) =>
+      return (i: ValidLocalValue<runtimeType<C>>) =>
         pipe(
           i,
-          O.map(codec.encode),
-          O.fold(
+          LV.map(codec.encode),
+          LV.fold2(
             () => {
               removeLocalElement(key, options)
               setItem(getLocalElement(key, options))
