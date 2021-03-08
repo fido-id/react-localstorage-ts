@@ -1,6 +1,6 @@
 {
   "name": "react-localstorage-ts",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "description": "A small library to wrap browser's localstorage in a functional fashion.",
   "main": "index.js",
   "publishConfig": {
