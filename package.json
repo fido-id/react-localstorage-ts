@@ -6,6 +6,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fido-id/react-localstorage-ts.git"
+  },
   "author": "fes300",
   "license": "MIT",
   "private": false,
