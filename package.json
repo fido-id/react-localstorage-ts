@@ -57,6 +57,7 @@
   },
   "scripts": {
     "postinstall": "is-ci || husky install",
+    "lint-staged": "lint-staged",
     "prepublishOnly": "pinst --disable",
     "postversion": "cp -r package.json ..",
     "postpublish": "pinst --enable",
