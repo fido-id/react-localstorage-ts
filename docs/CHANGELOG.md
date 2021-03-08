@@ -1,3 +1,5 @@
+# [2.0.0-beta.3](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.2...v2.0.0-beta.3) (2021-03-08)
+
 # [2.0.0-beta.2](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.1...v2.0.0-beta.2) (2021-03-08)
 
 # [2.0.0-beta.1](https://github.com/fido-id/react-localstorage-ts/compare/v1.2.9...v2.0.0-beta.1) (2021-03-08)
