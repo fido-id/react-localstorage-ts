@@ -30,10 +30,7 @@ afterEach(() => {
 
 describe("makeUseLocalItem", () => {
   it("a valid value is correctly accesses", () => {
-    localStorage.setItem(
-      localStorageKey,
-      CorrectCodec.encode(defaultShape),
-    )
+    localStorage.setItem(localStorageKey, CorrectCodec.encode(defaultShape))
 
     const { result } = renderHook(() => useShape())
 
@@ -80,10 +77,7 @@ describe("makeUseLocalItem", () => {
       )
     }
 
-    localStorage.setItem(
-      localStorageKey,
-      CorrectCodec.encode(defaultShape),
-    )
+    localStorage.setItem(localStorageKey, CorrectCodec.encode(defaultShape))
 
     const testComponent = render(<Component />)
     const testButton = render(<TestButton />)
