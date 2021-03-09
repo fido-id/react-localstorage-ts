@@ -1,3 +1,10 @@
+# [2.0.0-beta.7](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.6...v2.0.0-beta.7) (2021-03-09)
+
+
+### Features
+
+* add make-storage-hooks util ([68c9153](https://github.com/fido-id/react-localstorage-ts/commit/68c915392740a396f8f1bbcae4728e482fb142e5))
+
 # [2.0.0-beta.6](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.5...v2.0.0-beta.6) (2021-03-09)
 
 
