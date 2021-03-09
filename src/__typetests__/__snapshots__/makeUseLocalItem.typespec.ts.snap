@@ -6,15 +6,30 @@ exports[`It doesn't work with non-string encoding (type) should match snapshot 1
     Type '{ s: string; d: string; }' is not assignable to type 'string'."
 `;
 
+exports[`It doesn't work with non-string encoding (type) should match snapshot 2`] = `"Type 'TypeC<{ s: StringC; d: DateFromISOStringC; }>' is not assignable to type 'Codec<any, string, any>'."`;
+
 exports[`It works with string encoding (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;
 
+exports[`It works with string encoding (type) should match snapshot 2`] = `"Codec<Errors, string, { s: string; d: Date; }>"`;
+
 exports[`You can pass a valid set of options (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;
+
+exports[`You can pass a valid set of options to store (type) should match snapshot 1`] = `"any"`;
 
 exports[`You cannot pass an invalid set of options (type) should match snapshot 1`] = `
 "Type '{ foo: number; }' is not assignable to type '{ s: string; d: Date; }'.
   Object literal may only specify known properties, and 'foo' does not exist in type '{ s: string; d: Date; }'."
 `;
 
+exports[`You cannot pass an invalid set of options to store (type) should match snapshot 1`] = `
+"Type '{ fo: { s: string; d: Date; }; }' is not assignable to type '{ foo: { s: string; d: Date; }; }'.
+  Object literal may only specify known properties, and 'fo' does not exist in type '{ foo: { s: string; d: Date; }; }'."
+`;
+
 exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = `"Expected 0 arguments, but got 1."`;
 
 exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;
+
+exports[`store returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; }"`;
+
+exports[`storeWithOptions returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; }"`;

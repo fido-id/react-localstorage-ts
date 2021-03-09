@@ -5,7 +5,7 @@ import * as LV from "../LocalValue"
 import { DateFromISOString } from "io-ts-types"
 import { renderHook } from "@testing-library/react-hooks"
 import { cleanup, fireEvent, render } from "@testing-library/react"
-import { makeUseLocalItem } from "../useLocalStorage"
+import { makeStorageHooks, makeUseLocalItem } from "../useLocalStorage"
 import { fromIoTsCodec } from "../io-ts"
 
 export const localStorageKey = "shape"
@@ -67,6 +67,87 @@ describe("makeUseLocalItem", () => {
 
     const TestButton = () => {
       const [, setShape] = useShape()
+      const newVal = LV.valid({ s: "bar", d: new Date() })
+
+      return (
+        <button onClick={(_) => setShape(newVal)} data-testid={testButtonId}>
+          Test Button
+        </button>
+      )
+    }
+
+    localStorage.setItem(localStorageKey, CorrectCodec.encode(defaultShape))
+
+    const testComponent = render(<Component />)
+    const testButton = render(<TestButton />)
+
+    expect(testComponent.getByTestId(testComponentId).textContent).toBe(
+      defaultShape.s,
+    )
+
+    fireEvent.click(testButton.getByTestId(testButtonId))
+
+    expect(testComponent.getByTestId(testComponentId).textContent).toBe("bar")
+  })
+})
+
+
+describe("makeStorageHooks", () => {
+  it("a valid value is correctly accesses", () => {
+    const hooks = makeStorageHooks({
+      [localStorageKey]: CorrectCodec
+    })
+
+    localStorage.setItem(localStorageKey, CorrectCodec.encode(defaultShape))
+
+    const { result } = renderHook(() => hooks.useShape())
+
+    expect(result.current[0]).toEqual(LV.of(defaultShape))
+  })
+
+  it("an invalid value is correctly accesses", () => {
+    localStorage.setItem(localStorageKey, "foo")
+
+    const hooks = makeStorageHooks({
+      [localStorageKey]: CorrectCodec
+    })
+
+    const { result } = renderHook(() => hooks.useShape())
+
+    expect(LV.isInvalid(result.current[0])).toBe(true)
+  })
+
+  it("a missing value is correctly accesses", () => {
+    const hooks = makeStorageHooks({
+      [localStorageKey]: CorrectCodec
+    })
+
+    const { result } = renderHook(() => hooks.useShape())
+
+    expect(result.current[0]).toEqual(LV.absent)
+  })
+
+  it("component should rerender when local storage changes", () => {
+    const testComponentId = "testComponentId"
+    const testButtonId = "testButtonId"
+
+    const hooks = makeStorageHooks({
+      [localStorageKey]: CorrectCodec
+    })
+
+    const Component = () => {
+      const [shape] = hooks.useShape()
+      const v = pipe(
+        shape,
+        LV.map((v) => v.s),
+        LV.getOrElse(() => "bazz"),
+      )
+
+      return <span data-testid={testComponentId}>{v}</span>
+    }
+
+    const TestButton = () => {
+      const [, setShape] = hooks.useShape()
       const newVal = LV.valid({ s: "bar", d: new Date() })
 
       return (

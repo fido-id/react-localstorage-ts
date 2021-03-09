@@ -1,7 +1,16 @@
 import * as React from "react"
+import * as R from "fp-ts/Record"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { Codec, decodeType, runtimeType } from "./Codec"
-import { getLocalValue, setLocalValue, removeLocalValue } from "localvalue-ts"
+import {
+  getLocalValue,
+  setLocalValue,
+  removeLocalValue,
+  LocalStorageOptions,
+  StorageDef,
+  RuntimeValues,
+} from "localvalue-ts"
 import {
   isLocalStorageEvent,
   LocalStorageChangedEvent,
@@ -79,3 +88,47 @@ export const makeUseLocalItem = <C extends ValidCodec>(
 
     return [item, setItemMemo]
   }) as LocalValueHook<C>
+
+type StorageHooks<S> = S extends StorageDef<infer K>
+  ? {
+      [k in K as `use${Capitalize<k>}`]: LocalValueHook<S[K]>
+    }
+  : never
+
+const storageOptionsToValueOptions = <
+  K extends string,
+  SO extends LocalStorageOptions<Record<K, any>> | undefined
+>(
+  k: K,
+  so: SO,
+): UseLocalItemOptions<any> => ({
+  useMemorySore: so?.useMemorySore,
+  defaultValue:
+    so?.defaultValues === undefined
+      ? undefined
+      : pipe(
+          R.lookup(k, so.defaultValues),
+          O.getOrElse(() => undefined),
+        ),
+})
+
+const capitalize = (s: string) => {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+export const makeStorageHooks = <S extends StorageDef<any>>(
+  storage: S,
+  o?: LocalStorageOptions<RuntimeValues<S>>,
+): StorageHooks<S> => {
+  return pipe(
+    storage,
+    R.reduceWithIndex({}, (k, acc, c) => ({
+      ...acc,
+      [`use${capitalize(k)}`]: makeUseLocalItem(
+        k,
+        c,
+        storageOptionsToValueOptions(k, o),
+      ),
+    })),
+  ) as StorageHooks<S>
+}
