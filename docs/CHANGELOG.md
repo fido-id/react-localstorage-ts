@@ -1,3 +1,10 @@
+# [2.0.0-beta.12](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.11...v2.0.0-beta.12) (2021-03-09)
+
+
+### Features
+
+* export ValidLocalValue ([66aaea9](https://github.com/fido-id/react-localstorage-ts/commit/66aaea9cac1bf838c034fe248acbd73ab149b2d7))
+
 # [2.0.0-beta.11](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.10...v2.0.0-beta.11) (2021-03-09)
 
 
