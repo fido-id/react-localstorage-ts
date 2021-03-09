@@ -22,8 +22,8 @@ exports[`You cannot pass an invalid set of options (type) should match snapshot 
 `;
 
 exports[`You cannot pass an invalid set of options to store (type) should match snapshot 1`] = `
-"Type '{ fo: { s: string; d: Date; }; }' is not assignable to type '{ foo: { s: string; d: Date; }; }'.
-  Object literal may only specify known properties, and 'fo' does not exist in type '{ foo: { s: string; d: Date; }; }'."
+"Type '{ fo: { s: string; d: Date; }; }' is not assignable to type 'Partial<{ foo: { s: string; d: Date; }; }>'.
+  Object literal may only specify known properties, and 'fo' does not exist in type 'Partial<{ foo: { s: string; d: Date; }; }>'."
 `;
 
 exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = `"Expected 0 arguments, but got 1."`;
