@@ -1,3 +1,11 @@
+# [2.0.0-beta.6](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.5...v2.0.0-beta.6) (2021-03-09)
+
+
+### Features
+
+* add localvalue.ts dependency ([f68292e](https://github.com/fido-id/react-localstorage-ts/commit/f68292eafce9ff77508e67a4f6352ee105099f05))
+* remove unecessary peer deps ([7b6c5a0](https://github.com/fido-id/react-localstorage-ts/commit/7b6c5a004736e0c4a8bb5286d72a737ccd331e28))
+
 # [2.0.0-beta.5](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.4...v2.0.0-beta.5) (2021-03-09)
 
 
