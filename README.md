@@ -1,4 +1,4 @@
-![release](https://github.com/ModataSRL/react-localstorage-ts/actions/workflows/release.yml/badge.svg)
+![release](https://github.com/fido-id/react-localstorage-ts/actions/workflows/release.yml/badge.svg)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -6,7 +6,7 @@
 
 A small layer over the browser's localstorage, fallbacks to an in-memory store if localstorage is not supported by the browser.
 
-Built on with `fp-ts` in mind, `react-localstorage-ts` gives you a standard way to access objects stored locally.
+Built with `fp-ts` in mind, `react-localstorage-ts` gives you a standard way to access objects stored locally.
 
 ## install
 
@@ -148,7 +148,7 @@ const LoginPage: React.FC = ({ children }) => {
 ```
 
 ## defining codecs
-Given that browsers only allow you to store serialized data in string format, the only accepted codecs are of the form `Codec<E, string, B>`, where `E` is the shape of the decoding error, `B` is the shape of the runtime error and `string` is the type resulting after encoding.
+Given that browsers only allows you to store serialized data in string format, codecs must conform to the shape `Codec<E, string, B>`, where `E` is the shape of the decoding error, `B` is the shape of the runtime error and `string` is the type resulting after encoding.
 
 
 ---
@@ -166,7 +166,8 @@ const CorrectCodec = fromIoTsCodec(WrongCodec)
 
 ## updating localstorage from outside react components
 
-If you want to update your localstorage (and having your components "react" to the change) you can use the exported utilities `getLocalElement`, `setLocalElement` and `removeLocalElement`.
+If you want to update your localstorage from outside of a react component while still having your components "react" to the change,
+you can use the utilities `getLocalElement`, `setLocalElement` and `removeLocalElement`.
 
 ## contributing
 to commit to this repository there are a few rules:
