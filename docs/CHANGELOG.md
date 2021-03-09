@@ -1,3 +1,10 @@
+# [2.0.0-beta.11](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.10...v2.0.0-beta.11) (2021-03-09)
+
+
+### Bug Fixes
+
+* return type of storage-hooks type constructor ([df234df](https://github.com/fido-id/react-localstorage-ts/commit/df234dfc127666ea648538fc4e0349bf19b69acb))
+
 # [2.0.0-beta.10](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.9...v2.0.0-beta.10) (2021-03-09)
 
 # [2.0.0-beta.9](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.8...v2.0.0-beta.9) (2021-03-09)
