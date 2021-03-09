@@ -9,8 +9,13 @@ import { makeStorageHooks, makeUseLocalItem } from "../useLocalStorage"
 import { fromIoTsCodec } from "../io-ts"
 
 export const localStorageKey = "shape"
+export const unionLocalStorageKey = "union"
 
 export const ShapeCodec = t.type({ s: t.string, d: DateFromISOString })
+export const UnionCodec = t.union([
+  t.literal("foo"),
+  t.literal("baz"),
+])
 export type ShapeCodec = t.TypeOf<typeof ShapeCodec>
 
 export const defaultShape: ShapeCodec = {
@@ -19,6 +24,7 @@ export const defaultShape: ShapeCodec = {
 }
 
 const CorrectCodec = fromIoTsCodec(ShapeCodec)
+const CorrectUnionCodec = fromIoTsCodec(UnionCodec)
 
 const useShape = makeUseLocalItem("shape", CorrectCodec)
 
@@ -95,7 +101,8 @@ describe("makeUseLocalItem", () => {
 describe("makeStorageHooks", () => {
   it("a valid value is correctly accesses", () => {
     const hooks = makeStorageHooks({
-      [localStorageKey]: CorrectCodec
+      [localStorageKey]: CorrectCodec,
+      [unionLocalStorageKey]: CorrectUnionCodec
     })
 
     localStorage.setItem(localStorageKey, CorrectCodec.encode(defaultShape))

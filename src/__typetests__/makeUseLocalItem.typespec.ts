@@ -35,9 +35,16 @@ useShape
 // @dts-jest:fail:snap You cannot pass parameters to hooks
 useShape("")
 
+export const UnionCodec = t.union([
+  t.literal("foo"),
+  t.literal("baz"),
+])
+const CorrectUnionCodec = fromIoTsCodec(UnionCodec)
+
 const hooks = makeStorageHooks({
   // @dts-jest:pass:snap It works with string encoding
-  foo: CorrectCodec
+  foo: CorrectCodec,
+  union: CorrectUnionCodec
 })
 
 const defaultShape = { s: "foo", d: new Date() }
@@ -50,6 +57,7 @@ makeStorageHooks({
 const hooksWithOptions = makeStorageHooks(
   {
     foo: CorrectCodec,
+    union: CorrectUnionCodec
   },
   // @dts-jest:pass:snap You can pass a valid set of options to store
   { useMemorySore: true, defaultValues: { foo: defaultShape } },
@@ -66,5 +74,11 @@ makeStorageHooks(
 // @dts-jest:pass:snap store returns the correct type encoding
 hooks
 
+// @dts-jest:pass:snap store returns the correct type encoding
+hooks.useUnion()
+
 // @dts-jest:pass:snap storeWithOptions returns the correct type encoding
 hooksWithOptions
+
+// @dts-jest:pass:snap store returns the correct type encoding
+hooksWithOptions.useUnion()

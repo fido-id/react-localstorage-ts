@@ -91,7 +91,7 @@ export const makeUseLocalItem = <C extends ValidCodec>(
 
 type StorageHooks<S> = S extends StorageDef<infer K>
   ? {
-      [k in K as `use${Capitalize<k>}`]: LocalValueHook<S[K]>
+      [k in K as `use${Capitalize<k>}`]: LocalValueHook<S[k]>
     }
   : never
 

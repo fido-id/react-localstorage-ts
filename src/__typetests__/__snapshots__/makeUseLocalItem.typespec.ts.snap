@@ -30,6 +30,10 @@ exports[`You cannot pass parameters to hooks (type) should match snapshot 1`] = 
 
 exports[`resulting useShape typings are correct (type) should match snapshot 1`] = `"LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>"`;
 
-exports[`store returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; }"`;
+exports[`store returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; useUnion: LocalValueHook<Codec<Errors, string, \\"foo\\" | \\"baz\\">>; }"`;
 
-exports[`storeWithOptions returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; }"`;
+exports[`store returns the correct type encoding (type) should match snapshot 2`] = `"[item: LocalValue<Errors, \\"foo\\" | \\"baz\\">, setItem: (i: ValidLocalValue<\\"foo\\" | \\"baz\\">) => void]"`;
+
+exports[`store returns the correct type encoding (type) should match snapshot 3`] = `"[item: LocalValue<Errors, \\"foo\\" | \\"baz\\">, setItem: (i: ValidLocalValue<\\"foo\\" | \\"baz\\">) => void]"`;
+
+exports[`storeWithOptions returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; useUnion: LocalValueHook<Codec<Errors, string, \\"foo\\" | \\"baz\\">>; }"`;
