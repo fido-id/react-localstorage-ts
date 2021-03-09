@@ -1,3 +1,10 @@
+# [2.0.0-beta.5](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.4...v2.0.0-beta.5) (2021-03-09)
+
+
+### Features
+
+* use codecs in basic store access functions ([efcf8bd](https://github.com/fido-id/react-localstorage-ts/commit/efcf8bd311190c0e837e2b41c6b1a32387add2ae))
+
 # [2.0.0-beta.4](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.3...v2.0.0-beta.4) (2021-03-08)
 
 # [2.0.0-beta.3](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.2...v2.0.0-beta.3) (2021-03-08)
