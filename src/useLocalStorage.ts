@@ -20,7 +20,7 @@ import * as LV from "./LocalValue"
 
 type ValidCodec = Codec<any, string, any>
 
-type ValidLocalValue<A> = LV.Absent | LV.Valid<A>
+export type ValidLocalValue<A> = LV.Absent | LV.Valid<A>
 
 interface UseLocalItemOptions<C extends ValidCodec> {
   useMemorySore?: boolean
