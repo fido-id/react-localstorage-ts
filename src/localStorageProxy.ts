@@ -85,6 +85,6 @@ export class MemoryStorageProxy implements IProxyStorage {
   }
 }
 
-export const localStorageProxy = localStorageAvailable()
+export const localStorageProxy: IProxyStorage = localStorageAvailable()
   ? new LocalStorageProxy()
   : new MemoryStorageProxy()

@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as O from "fp-ts/Option"
-import { pipe } from "fp-ts/lib/function"
+import { pipe } from "fp-ts/function"
 import {
   isLocalStorageEvent,
   LocalStorageChangedEvent,
@@ -9,8 +9,7 @@ import {
   storeChangedCustomEvent,
 } from "./localStorageProxy"
 import { Codec, decodeType, runtimeType } from "./Codec"
-import { Option } from "./Option"
-import { Absent, Valid } from "./LocalValue"
+import { Absent, LocalValue, Valid } from "./LocalValue"
 import * as LV from "./LocalValue"
 
 const memoryStore = new MemoryStorageProxy()
@@ -27,21 +26,29 @@ interface UseLocalItemOptions<C extends ValidCodec> {
 const getStore = <O extends UseLocalItemOptions<any>>(o?: O) =>
   o?.useMemorySore ?? false ? memoryStore : localStorageProxy
 
-export const getLocalElement = <O extends UseLocalItemOptions<any>>(
+export const getLocalElement = <E, A, O extends UseLocalItemOptions<any>>(
   t: string,
+  codec: Codec<E, string, A>,
   options?: O,
-): Option<string> => {
+): LocalValue<E, A> => {
   const store = getStore(options)
-  return O.fromNullable(store.getItem(t))
+
+  return pipe(
+    O.fromNullable(store.getItem(t)),
+    LV.fromOption,
+    LV.chain((v) => codec.decode(v)),
+  )
 }
 
-export const setLocalElement = <O extends UseLocalItemOptions<any>>(
+export const setLocalElement = <E, A, O extends UseLocalItemOptions<any>>(
   t: string,
-  v: string,
+  codec: Codec<E, string, A>,
+  v: A,
   options?: O,
 ): void => {
   const store = getStore(options)
-  store.setItem(t, v)
+
+  store.setItem(t, codec.encode(v))
 }
 
 export const removeLocalElement = <O extends UseLocalItemOptions<any>>(
@@ -63,25 +70,20 @@ export const makeUseLocalItem = <C extends ValidCodec>(
   options?: UseLocalItemOptions<C>,
 ): LocalValueHook<C> =>
   (() => {
-    const [item, setItem] = React.useState(getLocalElement(key, options))
-
-    const itemMemo = React.useMemo(() => {
-      return pipe(item, LV.fromOption, LV.chain(codec.decode))
-    }, [item])
+    const [item, setItem] = React.useState(getLocalElement(key, codec, options))
 
     const setItemMemo = React.useMemo(() => {
       return (i: ValidLocalValue<runtimeType<C>>) =>
         pipe(
           i,
-          LV.map(codec.encode),
           LV.fold2(
             () => {
               removeLocalElement(key, options)
-              setItem(getLocalElement(key, options))
+              setItem(getLocalElement(key, codec, options))
             },
             (newValue) => {
-              setLocalElement(key, newValue, options)
-              setItem(getLocalElement(key, options))
+              setLocalElement(key, codec, newValue, options)
+              setItem(getLocalElement(key, codec, options))
             },
           ),
         )
@@ -92,11 +94,11 @@ export const makeUseLocalItem = <C extends ValidCodec>(
     ) => {
       if (isLocalStorageEvent(event)) {
         if (event.detail.key === key) {
-          setItem(getLocalElement(key, options))
+          setItem(getLocalElement(key, codec, options))
         }
       } else {
         if (event.key === key) {
-          setItem(getLocalElement(key, options))
+          setItem(getLocalElement(key, codec, options))
         }
       }
     }
@@ -116,5 +118,5 @@ export const makeUseLocalItem = <C extends ValidCodec>(
       }
     }, [key])
 
-    return [itemMemo, setItemMemo]
+    return [item, setItemMemo]
   }) as LocalValueHook<C>

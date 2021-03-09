@@ -1,6 +1,5 @@
 import * as React from "react"
 import * as t from "io-ts"
-import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/lib/function"
 import * as LV from "../LocalValue"
 import { DateFromISOString } from "io-ts-types"
@@ -68,7 +67,7 @@ describe("makeUseLocalItem", () => {
 
     const TestButton = () => {
       const [, setShape] = useShape()
-      const newVal: any = O.of({ s: "bar", d: new Date() }) as any
+      const newVal = LV.valid({ s: "bar", d: new Date() })
 
       return (
         <button onClick={(_) => setShape(newVal)} data-testid={testButtonId}>

@@ -169,10 +169,13 @@ export const map = <E, A, B>(f: (a: A) => B) => (
   return _map(lv, f)
 }
 
-export const fromOption = <E, A>(o: Option<A>): LocalValue<E, A> =>
+export const fromOption = <A>(o: Option<A>): LocalValue<never, A> =>
   pipe(
     o,
-    O.fold(() => absent, valid),
+    O.fold(
+      () => absent,
+      (v) => valid(v) as LocalValue<never, A>,
+    ),
   )
 
 export const fromEither = <E, A>(e: Either<E, A>): LocalValue<E, A> =>
@@ -181,7 +184,7 @@ export const fromEither = <E, A>(e: Either<E, A>): LocalValue<E, A> =>
     E.fold(invalid, (v) => valid(v) as LocalValue<E, A>),
   )
 
-export const toOption = <E, A>(v: LocalValue<E, A>) =>
+export const toOption = <E, A>(v: LocalValue<E, A>): Option<A> =>
   pipe(
     v,
     fold(
@@ -222,11 +225,11 @@ export const absent: LocalValue<never, never> = {
   _tag: "Absent",
 }
 
-export const valid = <A>(v: A): LocalValue<never, A> => {
+export const valid = <A>(v: A): Valid<A> => {
   return { _tag: "Valid", value: v }
 }
 
-export const invalid = <E>(e: E): LocalValue<E, never> => {
+export const invalid = <E>(e: E): Invalid<E> => {
   return { _tag: "Invalid", errors: e }
 }
 
