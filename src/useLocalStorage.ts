@@ -10,6 +10,8 @@ import {
   LocalStorageOptions,
   StorageDef,
   RuntimeValues,
+  StorageInstance,
+  LocalValueModifiers,
 } from "localvalue-ts"
 import {
   isLocalStorageEvent,
@@ -131,4 +133,86 @@ export const makeStorageHooks = <S extends StorageDef<any>>(
       ),
     })),
   ) as StorageHooks<S>
+}
+
+export const makeUseLocalItemFromStorage = <C extends ValidCodec>(
+  key: string,
+  v: LocalValueModifiers<C>,
+): LocalValueHook<C> =>
+  (() => {
+    const [item, setItem] = React.useState(v.getValue())
+
+    const setItemMemo = React.useMemo(() => {
+      return (i: ValidLocalValue<runtimeType<C>>) =>
+        pipe(
+          i,
+          LV.fold2(
+            () => {
+              v.removeValue()
+              setItem(v.getValue())
+            },
+            (newValue) => {
+              v.setValue(newValue)
+              setItem(v.getValue())
+            },
+          ),
+        )
+    }, [item])
+
+    const onLocalStorageChange = (
+      event: StorageEvent | LocalStorageChangedEvent,
+    ) => {
+      if (isLocalStorageEvent(event)) {
+        if (event.detail.key === key) {
+          setItem(v.getValue())
+        }
+      } else {
+        if (event.key === key) {
+          setItem(v.getValue())
+        }
+      }
+    }
+
+    React.useEffect(() => {
+      const listener = (e: Event) => {
+        onLocalStorageChange(e as StorageEvent)
+      }
+
+      window.addEventListener(storeChangedCustomEvent, listener)
+      // The storage event only works in the context of other documents (eg. other browser tabs)
+      window.addEventListener("storage", listener)
+
+      return () => {
+        window.removeEventListener(storeChangedCustomEvent, listener)
+        window.removeEventListener("storage", listener)
+      }
+    }, [key])
+
+    return [item, setItemMemo]
+  }) as LocalValueHook<C>
+
+type LocalValueHookFromModifiers<M> = M extends LocalValueModifiers<infer C>
+  ? C extends ValidCodec
+    ? LocalValueHook<C>
+    : never
+  : never
+
+export type StorageHooksFromInstance<S> = S extends Record<infer K, any>
+  ? [K] extends [string]
+    ? {
+        [k in K as `use${Capitalize<k>}`]: LocalValueHookFromModifiers<S[k]>
+      }
+    : never
+  : never
+
+export const makeHooksFromStorage = <S extends StorageInstance<any>>(
+  storage: S,
+): StorageHooksFromInstance<S> => {
+  return pipe(
+    storage,
+    R.reduceWithIndex({}, (k, acc, v) => ({
+      ...acc,
+      [`use${capitalize(k)}`]: makeUseLocalItemFromStorage(k, v),
+    })),
+  ) as StorageHooksFromInstance<S>
 }

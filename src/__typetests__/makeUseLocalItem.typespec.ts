@@ -1,7 +1,12 @@
 import * as t from "io-ts"
-import { makeStorageHooks, makeUseLocalItem } from "../useLocalStorage"
+import {
+  makeHooksFromStorage,
+  makeStorageHooks,
+  makeUseLocalItem,
+} from "../useLocalStorage"
 import { DateFromISOString } from "io-ts-types"
 import { fromIoTsCodec } from "../io-ts"
+import { createLocalStorage } from "localvalue-ts"
 
 const ShapeCodec = t.type({ s: t.string, d: DateFromISOString })
 type ShapeCodec = t.TypeOf<typeof ShapeCodec>
@@ -35,16 +40,13 @@ useShape
 // @dts-jest:fail:snap You cannot pass parameters to hooks
 useShape("")
 
-export const UnionCodec = t.union([
-  t.literal("foo"),
-  t.literal("baz"),
-])
+export const UnionCodec = t.union([t.literal("foo"), t.literal("baz")])
 const CorrectUnionCodec = fromIoTsCodec(UnionCodec)
 
 const hooks = makeStorageHooks({
   // @dts-jest:pass:snap It works with string encoding
   foo: CorrectCodec,
-  union: CorrectUnionCodec
+  union: CorrectUnionCodec,
 })
 
 const defaultShape = { s: "foo", d: new Date() }
@@ -57,7 +59,7 @@ makeStorageHooks({
 const hooksWithOptions = makeStorageHooks(
   {
     foo: CorrectCodec,
-    union: CorrectUnionCodec
+    union: CorrectUnionCodec,
   },
   // @dts-jest:pass:snap You can pass a valid set of options to store
   { useMemorySore: true, defaultValues: { foo: defaultShape } },
@@ -82,3 +84,32 @@ hooksWithOptions
 
 // @dts-jest:pass:snap store returns the correct type encoding
 hooksWithOptions.useUnion()
+
+const store = createLocalStorage({
+  foo: CorrectCodec,
+  union: CorrectUnionCodec,
+})
+
+const storeWithOptions = createLocalStorage(
+  {
+    foo: CorrectCodec,
+    union: CorrectUnionCodec,
+  },
+  { useMemorySore: true, defaultValues: { foo: defaultShape } },
+)
+
+const hooksFromStorage = makeHooksFromStorage(store)
+
+const hooksFromStorageWithOptions = makeHooksFromStorage(storeWithOptions)
+
+// @dts-jest:pass:snap store returns the correct type encoding
+hooksFromStorage
+
+// @dts-jest:pass:snap store returns the correct type encoding
+hooksFromStorage.useUnion()
+
+// @dts-jest:pass:snap storeWithOptions returns the correct type encoding
+hooksFromStorageWithOptions
+
+// @dts-jest:pass:snap store returns the correct type encoding
+hooksFromStorageWithOptions.useUnion()

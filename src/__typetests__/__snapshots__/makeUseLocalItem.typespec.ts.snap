@@ -36,4 +36,12 @@ exports[`store returns the correct type encoding (type) should match snapshot 2`
 
 exports[`store returns the correct type encoding (type) should match snapshot 3`] = `"[item: LocalValue<Errors, \\"foo\\" | \\"baz\\">, setItem: (i: ValidLocalValue<\\"foo\\" | \\"baz\\">) => void]"`;
 
+exports[`store returns the correct type encoding (type) should match snapshot 4`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; useUnion: LocalValueHook<Codec<Errors, string, \\"foo\\" | \\"baz\\">>; }"`;
+
+exports[`store returns the correct type encoding (type) should match snapshot 5`] = `"[item: LocalValue<Errors, \\"foo\\" | \\"baz\\">, setItem: (i: ValidLocalValue<\\"foo\\" | \\"baz\\">) => void]"`;
+
+exports[`store returns the correct type encoding (type) should match snapshot 6`] = `"[item: LocalValue<Errors, \\"foo\\" | \\"baz\\">, setItem: (i: ValidLocalValue<\\"foo\\" | \\"baz\\">) => void]"`;
+
 exports[`storeWithOptions returns the correct type encoding (type) should match snapshot 1`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; useUnion: LocalValueHook<Codec<Errors, string, \\"foo\\" | \\"baz\\">>; }"`;
+
+exports[`storeWithOptions returns the correct type encoding (type) should match snapshot 2`] = `"{ useFoo: LocalValueHook<Codec<Errors, string, { s: string; d: Date; }>>; useUnion: LocalValueHook<Codec<Errors, string, \\"foo\\" | \\"baz\\">>; }"`;
