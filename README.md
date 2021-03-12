@@ -169,8 +169,8 @@ import { pipe } from "fp-ts/lib/function"
 import * as t from "io-ts"
 import * as E from "fp-ts/Either"
 import { Json, JsonFromString } from "io-ts-types"
-import * as LV from "./LocalValue"
-import { Codec } from "./Codec"
+import * as LV from "react-localstorage-ts/LocalValue"
+import { Codec } from "react-localstorage-ts/Codec"
 
 const adaptIoTsCodec = <A, B>(C: t.Type<B, A>): Codec<t.Errors, A, B> => {
   return {
