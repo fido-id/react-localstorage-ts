@@ -11,52 +11,58 @@ Built with `fp-ts` in mind, `react-localstorage-ts` gives you a standard way to 
 ## install
 
 ### yarn
+
 ```shell
 yarn add react-localstorage-ts
 ```
+
 ### npm
+
 ```shell
 npm install -S react-localstorage-ts
 ```
 
 ## quick start
+
 First create the hooks to read/write the values you just defined:
 
 ```tsx
 // localHooks.ts
 import * as t from "io-ts"
-import {
-  makeUseLocalItem,
-} from "react-localstorage-ts"
-import {ThemeFlavour} from "./codecs"
+import { makeHooksFromStorage, createLocalStorage } from "react-localstorage-ts"
+import { ThemeFlavourCodec, AuthTokenCodec } from "./codecs"
 
-export const useThemeFlavour = makeUseLocalItem(
-  "theme",
-  ThemeFlavour,
-  { defaultValue: "light" },
+export const localStorage = createLocalStorage(
+  {
+    themeFlavour: ThemeFlavourCodec,
+    authToken: AuthTokenCodec,
+  },
+  { defaultValues: { themeFlavour: "light" } },
 )
-export const useAccessToken = makeUseLocalItem("access_token", t.string)
+
+export const hooks = makeHooksFromStorage(storage)
 ```
 
 then you use them in your react components:
+
 ```tsx
 // App.tsx
 import * as React from "react"
-import * as E from "fp-ts/Either"
+import * as LV from "react-localstorage-ts/LocalValue"
 import LightThemeApp from "./components/LightThemeApp"
 import DarkThemeApp from "./components/DarkThemeApp"
 import { useThemeFlavour } from "./localHooks"
 
 const App: React.FC = () => {
-  const [theme, setTheme] = useThemeFlavour()
+  const [themeFlavour, setThemeFlavour] = hooks.useThemeFlavour()
 
   return pipe(
     theme,
-    E.fold(
+    LV.fold2(
       () => {
-        console.error('wrong value stored in localStorage!')
+        console.error("wrong value stored in localStorage!")
       },
-      themeFlavour => {
+      (themeFlavour) => {
         switch (themeFlavour) {
           case "light": {
             return <LightThemeApp />
@@ -65,15 +71,18 @@ const App: React.FC = () => {
             return <DarkThemeApp />
           }
         }
-      }
-    )
+      },
+    ),
   )
 }
 
 export default App
 ```
+
 ## LocalValue
+
 A new data structure is defined for items stored in localstorage, `LocalValue`. When dealing with a value stored in your localstorage there are three possibilities:
+
 1. there is no value in your localstorage (optionality).
 2. the value is present, but it is wrong (correctness).
 3. the value is present and it is valid (also correctness).
@@ -96,8 +105,8 @@ export interface Valid<A> {
 
 export type LocalValue<E, A> = Absent | Invalid<E> | Valid<A>
 ```
-It also has instances for some of the most common type-classes
-and you can use it in the same way you usually use your usual `fp-ts` abstractions:
+
+It also has instances for some of the most common `fp-ts` type-classes, so that you can use it in the same way you usually use other `fp-ts` abstractions:
 
 ```tsx
 // LoginLayout.tsx
@@ -117,7 +126,11 @@ const LoginLayout: React.FC = ({ children }) => {
 
   return pipe(
     token,
-    LV.fold(() => null, () => null, () => <>{ children }</>), // N.B. when you don't want to deal with the "incorrect" cases, you can use fold2 and only define two handling funcitons
+    LV.fold(
+      () => "no token in storage",
+      () => "malformed token in storage",
+      () => <>{children}</>,
+    ), // N.B. when you want to treat the "absent" and "incorrect" case in the same way, you can use fold2 and only define two handling funcitons
   )
 }
 
@@ -130,17 +143,15 @@ const LoginPage: React.FC = ({ children }) => {
   const [token, setToken] = useAccessToken()
 
   React.useEffect(() => {
-    if (LV.isValid) {
+    if (LV.isValid(token)) {
       goToHomePage()
     }
   }, [])
 
   return (
     <Form
-      onSubmit={
-        (formValues) => api
-          .getToken(formValues)
-          .then(t => setToken(t))
+      onSubmit={(formValues) =>
+        api.getToken(formValues).then((t) => setToken(t))
       }
     />
   )
@@ -148,32 +159,57 @@ const LoginPage: React.FC = ({ children }) => {
 ```
 
 ## defining codecs
-Given that browsers only allows you to store serialized data in string format, codecs must conform to the shape `Codec<E, string, B>`, where `E` is the shape of the decoding error, `B` is the shape of the runtime error and `string` is the type resulting after encoding.
 
+Given that browsers only allows you to store serialized data in string format, codecs must conform to the shape `Codec<E, string, B>`, where `E` is the type of the decoding error, `string` is the type of the data before decoding and `B` is the type of the runtime value.
 
----
-> N.B. this is only useful if you use `io-ts`.
-
-As this kind of string conversion is very often just a JSON stringification of your encoded value, we export a utility that conveniently transform `io-ts` codecs into valid ones by first applying your encoding and then stringifying the result:
+If you use `io-ts` you can simply create a layer to convert `io-ts` codecs to `Codec` compliant instances:
 
 ```ts
-import { fromIoTsCodec } from "react-localstorage-ts/io-ts"
+import { pipe } from "fp-ts/lib/function"
+import * as t from "io-ts"
+import * as E from "fp-ts/Either"
+import { Json, JsonFromString } from "io-ts-types"
+import * as LV from "./LocalValue"
+import { Codec } from "./Codec"
 
-const WrongCodec = t.type({ s: t.string, d: DateFromISOString })
+const adaptIoTsCodec = <A, B>(C: t.Type<B, A>): Codec<t.Errors, A, B> => {
+  return {
+    encode: C.encode,
+    decode: (u: unknown) => LV.fromEither(C.decode(u)),
+  }
+}
 
-const CorrectCodec = fromIoTsCodec(WrongCodec)
+export const fromIoTsCodec = <A, B extends Json>(C: t.Type<A, B>) => {
+  const stringCodec = new t.Type<A, string>(
+    C.name,
+    C.is,
+    (u, c) => {
+      return pipe(
+        t.string.validate(u, c),
+        E.chain((jsonString) => JsonFromString.validate(jsonString, c)),
+        E.chain((json) => C.validate(json, c)),
+      )
+    },
+    (v) => {
+      return pipe(v, C.encode, JsonFromString.encode)
+    },
+  )
+
+  return adaptIoTsCodec(stringCodec)
+}
 ```
 
-## updating localstorage from outside react components
-
 If you want to update your localstorage from outside of a react component while still having your components "react" to the change,
-you can use the utilities `getLocalElement`, `setLocalElement` and `removeLocalElement`.
+you can use the utilities `getLocalValue`, `setLocalElement` and `removeLocalElement`.
 
 ## contributing
+
 to commit to this repository there are a few rules:
+
 - your commits must follow the conventional commit standard (it should be enforced by husky `commit-msg` hook).
 - your code must be formatted using prettier.
 - all tests must pass.
 
 ## release flow
+
 [here](https://github.com/semantic-release/semantic-release/blob/1405b94296059c0c6878fb8b626e2c5da9317632/docs/recipes/pre-releases.md) you can find an explanation of the release flow.
