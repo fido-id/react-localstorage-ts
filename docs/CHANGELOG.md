@@ -1,3 +1,15 @@
+# [2.0.0-beta.14](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.13...v2.0.0-beta.14) (2021-03-12)
+
+
+### Features
+
+* upgrade local-storage-ts ([1501f68](https://github.com/fido-id/react-localstorage-ts/commit/1501f689fc8c169de84d8c10d13d76c56260434e))
+
+
+### BREAKING CHANGES
+
+* removed fromIOTsCodec util
+
 # [2.0.0-beta.13](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0-beta.12...v2.0.0-beta.13) (2021-03-10)
 
 
