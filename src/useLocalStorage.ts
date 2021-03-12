@@ -14,7 +14,6 @@ import {
   LocalValueModifiers,
 } from "localvalue-ts"
 import {
-  isLocalStorageEvent,
   LocalStorageChangedEvent,
   storeChangedCustomEvent,
 } from "localvalue-ts/localStorageProxy"
@@ -34,13 +33,17 @@ export type LocalValueHook<C extends ValidCodec> = () => [
   setItem: (i: ValidLocalValue<runtimeType<C>>) => void,
 ]
 
+const isLocalStorageEvent = (e: any): e is LocalStorageChangedEvent => {
+  return typeof e?.detail?.key === "string"
+}
+
 export const makeUseLocalItem = <C extends ValidCodec>(
   key: string,
   codec: C,
   options?: UseLocalItemOptions<C>,
 ): LocalValueHook<C> =>
   (() => {
-    const [item, setItem] = React.useState(getLocalValue(key, codec, options))
+    const [item, setItem] = React.useState(getLocalValue(key, codec, options)())
 
     const setItemMemo = React.useMemo(() => {
       return (i: ValidLocalValue<runtimeType<C>>) =>
@@ -48,12 +51,12 @@ export const makeUseLocalItem = <C extends ValidCodec>(
           i,
           LV.fold2(
             () => {
-              removeLocalValue(key, options)
-              setItem(getLocalValue(key, codec, options))
+              removeLocalValue(key, options)()
+              setItem(getLocalValue(key, codec, options)())
             },
             (newValue) => {
-              setLocalValue(key, codec, newValue, options)
-              setItem(getLocalValue(key, codec, options))
+              setLocalValue(key, codec, newValue, options)()
+              setItem(getLocalValue(key, codec, options)())
             },
           ),
         )
@@ -64,11 +67,11 @@ export const makeUseLocalItem = <C extends ValidCodec>(
     ) => {
       if (isLocalStorageEvent(event)) {
         if (event.detail.key === key) {
-          setItem(getLocalValue(key, codec, options))
+          setItem(getLocalValue(key, codec, options)())
         }
       } else {
         if (event.key === key) {
-          setItem(getLocalValue(key, codec, options))
+          setItem(getLocalValue(key, codec, options)())
         }
       }
     }
@@ -140,7 +143,7 @@ export const makeUseLocalItemFromStorage = <C extends ValidCodec>(
   v: LocalValueModifiers<C>,
 ): LocalValueHook<C> =>
   (() => {
-    const [item, setItem] = React.useState(v.getValue())
+    const [item, setItem] = React.useState(v.get())
 
     const setItemMemo = React.useMemo(() => {
       return (i: ValidLocalValue<runtimeType<C>>) =>
@@ -148,12 +151,12 @@ export const makeUseLocalItemFromStorage = <C extends ValidCodec>(
           i,
           LV.fold2(
             () => {
-              v.removeValue()
-              setItem(v.getValue())
+              v.remove()
+              setItem(v.get())
             },
             (newValue) => {
-              v.setValue(newValue)
-              setItem(v.getValue())
+              v.set(newValue)()
+              setItem(v.get())
             },
           ),
         )
@@ -164,11 +167,11 @@ export const makeUseLocalItemFromStorage = <C extends ValidCodec>(
     ) => {
       if (isLocalStorageEvent(event)) {
         if (event.detail.key === key) {
-          setItem(v.getValue())
+          setItem(v.get())
         }
       } else {
         if (event.key === key) {
-          setItem(v.getValue())
+          setItem(v.get())
         }
       }
     }

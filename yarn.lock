@@ -4646,14 +4646,14 @@ load-json-file@^4.0.0:
     pify "^3.0.0"
     strip-bom "^3.0.0"
 
-localvalue-ts@^1.1.0-beta.7:
-  version "1.1.0-beta.7"
-  resolved "https://registry.yarnpkg.com/localvalue-ts/-/localvalue-ts-1.1.0-beta.7.tgz#f3fdd8a1235d5a48d2fe4c9c462d73475854754b"
-  integrity sha512-1khL4ZaiSB8OdPnIz+AjulyWg3sZuS4gx4Xgh4rBfi45bkl24aqafKEdmlZTwzifJfRfndyflqmgzqyX6ZvulQ==
+localvalue-ts@^2.0.0-beta.2:
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/localvalue-ts/-/localvalue-ts-2.0.0-beta.2.tgz#9065170bf9ffdf4c6b16b2e31c7745248ba9fb0b"
+  integrity sha512-oaIV8K2Or3s3QRnocXIVeSa94QqcfrkM5T7qmx8MtDN4vj2ygj/c9XOd81WnGqa9MysXn8ir5ES2bP6BDKll/g==
   dependencies:
     fp-ts "^2.9.5"
     io-ts "^2.2.16"
-    monocle-ts "2.3.5"
+    monocle-ts "^2.3.5"
     newtype-ts "^0.3.4"
 
 locate-path@^2.0.0:
@@ -5103,10 +5103,10 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocle-ts@2.3.5:
-  version "2.3.5"
-  resolved "https://registry.yarnpkg.com/monocle-ts/-/monocle-ts-2.3.5.tgz#1ff90b08616254b887e4c2bc5b2a9764fed16723"
-  integrity sha512-Xm9jdWvqFrlV0k965eY5AlCpWIIUBY2ExzGbEG+byMs+mZI4J7zvaUOLpQ8MTFgkpgyEnu4qUhuZT/Or3QeRiA==
+monocle-ts@^2.3.5:
+  version "2.3.9"
+  resolved "https://registry.yarnpkg.com/monocle-ts/-/monocle-ts-2.3.9.tgz#037d8a14f72dfd5ce6928c8730de1f0e504da94d"
+  integrity sha512-X5ppMOPAQV/BeENhPpEI0hJelXMoNVtHlTVk89ugZL7ZvK6JtBDFW/762aq1MOzCCaBAFlxGz1Wmxa0DW7tshQ==
 
 move-concurrently@^1.0.1:
   version "1.0.1"

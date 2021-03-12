@@ -16,7 +16,8 @@
     "lib": ["esnext", "dom"],
     "outDir": "./dist",
     "jsx": "react",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "stripInternal": true
   },
   "include": ["./src"],
   "exclude": ["./src/__typetests__", "./src/__tests__"]
