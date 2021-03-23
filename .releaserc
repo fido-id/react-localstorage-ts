@@ -2,8 +2,8 @@
   "repositoryUrl": "git@github.com:fido-id/react-localstorage-ts.git",
   "branches": [
     {"name": "master"},
-    {"name": "alpha", "channel": "alpha", "prerelease": "alpha"},
-    {"name": "beta", "channel": "beta", "prerelease": "beta"}
+    {"name": "alpha", "channel": "alpha", "prerelease": true},
+    {"name": "beta", "channel": "beta", "prerelease": true}
   ],
   "plugins": [
     ["@semantic-release/commit-analyzer", {
