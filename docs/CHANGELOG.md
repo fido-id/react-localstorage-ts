@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0...v2.1.0) (2021-04-09)
+
+
+### Features
+
+* upgrade to local-value 2.1 ([817ad2d](https://github.com/fido-id/react-localstorage-ts/commit/817ad2d61c119b6d13aec270bc8bfe2c06b54e44))
+
 # [2.0.0](https://github.com/fido-id/react-localstorage-ts/compare/v1.2.10...v2.0.0) (2021-03-23)
 
 
