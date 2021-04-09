@@ -4646,10 +4646,10 @@ load-json-file@^4.0.0:
     pify "^3.0.0"
     strip-bom "^3.0.0"
 
-localvalue-ts@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/localvalue-ts/-/localvalue-ts-2.0.0.tgz#2f32bf3ec09c756daa3ffd5ef067f792918251b3"
-  integrity sha512-dG++Gi/yjf3h9QhNxPnJynj9SrCy/Y41vqlJS8lSriHFL5Q/GY5hZcYooUW533fR9SVcVTpYFlhBjxnI0p3A8A==
+localvalue-ts@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/localvalue-ts/-/localvalue-ts-2.1.0.tgz#b5e96367aba50269771848a4ae34446ea4c0c82b"
+  integrity sha512-xvi6KA6r0fy5XcKab0BlahgD1ylWO152DE193JeemnDgRmvkpP15ch3rvYaVdQnD0+TBDiNtRXI3DN/fh94Jfg==
   dependencies:
     fp-ts "^2.9.5"
     io-ts "^2.2.16"
