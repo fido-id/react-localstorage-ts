@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/fido-id/react-localstorage-ts/compare/v2.1.0...v2.2.0) (2021-04-30)
+
+
+### Features
+
+* setItem returns IO ([6acf731](https://github.com/fido-id/react-localstorage-ts/commit/6acf731208f93b5bcaff945ae25f9a501e567890))
+
 # [2.1.0](https://github.com/fido-id/react-localstorage-ts/compare/v2.0.0...v2.1.0) (2021-04-09)
 
 
