@@ -106,7 +106,7 @@ describe("makeUseLocalItem", () => {
       const newVal = LV.valid({ s: "bar", d: new Date() })
 
       return (
-        <button onClick={(_) => setShape(newVal)} data-testid={testButtonId}>
+        <button onClick={(_) => setShape(newVal)()} data-testid={testButtonId}>
           Test Button
         </button>
       )
@@ -187,7 +187,7 @@ describe("makeStorageHooks", () => {
       const newVal = LV.valid({ s: "bar", d: new Date() })
 
       return (
-        <button onClick={(_) => setShape(newVal)} data-testid={testButtonId}>
+        <button onClick={(_) => setShape(newVal)()} data-testid={testButtonId}>
           Test Button
         </button>
       )
@@ -276,7 +276,7 @@ describe("makeStorageHooksFromStorage", () => {
       const newVal = LV.valid({ s: "bar", d: new Date() })
 
       return (
-        <button onClick={(_) => setShape(newVal)} data-testid={testButtonId}>
+        <button onClick={(_) => setShape(newVal)()} data-testid={testButtonId}>
           Test Button
         </button>
       )

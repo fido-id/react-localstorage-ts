@@ -19,6 +19,18 @@ import {
 } from "localvalue-ts/localStorageProxy"
 import * as LV from "./LocalValue"
 
+// -------------------------------------------------------------------------------------
+// fp-ts data structures
+// -------------------------------------------------------------------------------------
+
+interface IO<A> {
+  (): A
+}
+
+// -------------------------------------------------------------------------------------
+// reactLocalStorage
+// -------------------------------------------------------------------------------------
+
 type ValidCodec = Codec<any, string, any>
 
 export type ValidLocalValue<A> = LV.Absent | LV.Valid<A>
@@ -30,7 +42,7 @@ interface UseLocalItemOptions<C extends ValidCodec> {
 
 export type LocalValueHook<C extends ValidCodec> = () => [
   item: decodeType<C>,
-  setItem: (i: ValidLocalValue<runtimeType<C>>) => void,
+  setItem: (i: ValidLocalValue<runtimeType<C>>) => IO<void>,
 ]
 
 const isLocalStorageEvent = (e: any): e is LocalStorageChangedEvent => {
@@ -41,58 +53,59 @@ export const makeUseLocalItem = <C extends ValidCodec>(
   key: string,
   codec: C,
   options?: UseLocalItemOptions<C>,
-): LocalValueHook<C> =>
-  (() => {
-    const [item, setItem] = React.useState(getLocalValue(key, codec, options)())
+): LocalValueHook<C> => () => {
+  const [item, setItem] = React.useState(
+    getLocalValue(key, codec, options)() as decodeType<C>,
+  )
 
-    const setItemMemo = React.useMemo(() => {
-      return (i: ValidLocalValue<runtimeType<C>>) =>
-        pipe(
-          i,
-          LV.fold2(
-            () => {
-              removeLocalValue(key, options)()
-              setItem(getLocalValue(key, codec, options)())
-            },
-            (newValue) => {
-              setLocalValue(key, codec, newValue, options)()
-              setItem(getLocalValue(key, codec, options)())
-            },
-          ),
-        )
-    }, [item])
+  const setItemMemo = React.useMemo(() => {
+    return (i: ValidLocalValue<runtimeType<C>>) => () =>
+      pipe(
+        i,
+        LV.fold2(
+          () => {
+            removeLocalValue(key, options)()
+            setItem(getLocalValue(key, codec, options)() as decodeType<C>)
+          },
+          (newValue) => {
+            setLocalValue(key, codec, newValue, options)()
+            setItem(getLocalValue(key, codec, options)() as decodeType<C>)
+          },
+        ),
+      )
+  }, [item])
 
-    const onLocalStorageChange = (
-      event: StorageEvent | LocalStorageChangedEvent,
-    ) => {
-      if (isLocalStorageEvent(event)) {
-        if (event.detail.key === key) {
-          setItem(getLocalValue(key, codec, options)())
-        }
-      } else {
-        if (event.key === key) {
-          setItem(getLocalValue(key, codec, options)())
-        }
+  const onLocalStorageChange = (
+    event: StorageEvent | LocalStorageChangedEvent,
+  ) => {
+    if (isLocalStorageEvent(event)) {
+      if (event.detail.key === key) {
+        setItem(getLocalValue(key, codec, options)() as decodeType<C>)
+      }
+    } else {
+      if (event.key === key) {
+        setItem(getLocalValue(key, codec, options)() as decodeType<C>)
       }
     }
+  }
 
-    React.useEffect(() => {
-      const listener = (e: Event) => {
-        onLocalStorageChange(e as StorageEvent)
-      }
+  React.useEffect(() => {
+    const listener = (e: Event) => {
+      onLocalStorageChange(e as StorageEvent)
+    }
 
-      window.addEventListener(storeChangedCustomEvent, listener)
-      // The storage event only works in the context of other documents (eg. other browser tabs)
-      window.addEventListener("storage", listener)
+    window.addEventListener(storeChangedCustomEvent, listener)
+    // The storage event only works in the context of other documents (eg. other browser tabs)
+    window.addEventListener("storage", listener)
 
-      return () => {
-        window.removeEventListener(storeChangedCustomEvent, listener)
-        window.removeEventListener("storage", listener)
-      }
-    }, [key])
+    return () => {
+      window.removeEventListener(storeChangedCustomEvent, listener)
+      window.removeEventListener("storage", listener)
+    }
+  }, [key])
 
-    return [item, setItemMemo]
-  }) as LocalValueHook<C>
+  return [item, setItemMemo]
+}
 
 type StorageHooks<S> = S extends StorageDef<infer K>
   ? {
@@ -141,58 +154,57 @@ export const makeStorageHooks = <S extends StorageDef<any>>(
 export const makeUseLocalItemFromStorage = <C extends ValidCodec>(
   key: string,
   v: LocalValueModifiers<C>,
-): LocalValueHook<C> =>
-  (() => {
-    const [item, setItem] = React.useState(v.get())
+): LocalValueHook<C> => () => {
+  const [item, setItem] = React.useState(v.get() as decodeType<C>)
 
-    const setItemMemo = React.useMemo(() => {
-      return (i: ValidLocalValue<runtimeType<C>>) =>
-        pipe(
-          i,
-          LV.fold2(
-            () => {
-              v.remove()
-              setItem(v.get())
-            },
-            (newValue) => {
-              v.set(newValue)()
-              setItem(v.get())
-            },
-          ),
-        )
-    }, [item])
+  const setItemMemo = React.useMemo(() => {
+    return (i: ValidLocalValue<runtimeType<C>>) => () =>
+      pipe(
+        i,
+        LV.fold2(
+          () => {
+            v.remove()
+            setItem(v.get() as decodeType<C>)
+          },
+          (newValue) => {
+            v.set(newValue)()
+            setItem(v.get() as decodeType<C>)
+          },
+        ),
+      )
+  }, [item])
 
-    const onLocalStorageChange = (
-      event: StorageEvent | LocalStorageChangedEvent,
-    ) => {
-      if (isLocalStorageEvent(event)) {
-        if (event.detail.key === key) {
-          setItem(v.get())
-        }
-      } else {
-        if (event.key === key) {
-          setItem(v.get())
-        }
+  const onLocalStorageChange = (
+    event: StorageEvent | LocalStorageChangedEvent,
+  ) => {
+    if (isLocalStorageEvent(event)) {
+      if (event.detail.key === key) {
+        setItem(v.get() as decodeType<C>)
+      }
+    } else {
+      if (event.key === key) {
+        setItem(v.get() as decodeType<C>)
       }
     }
+  }
 
-    React.useEffect(() => {
-      const listener = (e: Event) => {
-        onLocalStorageChange(e as StorageEvent)
-      }
+  React.useEffect(() => {
+    const listener = (e: Event) => {
+      onLocalStorageChange(e as StorageEvent)
+    }
 
-      window.addEventListener(storeChangedCustomEvent, listener)
-      // The storage event only works in the context of other documents (eg. other browser tabs)
-      window.addEventListener("storage", listener)
+    window.addEventListener(storeChangedCustomEvent, listener)
+    // The storage event only works in the context of other documents (eg. other browser tabs)
+    window.addEventListener("storage", listener)
 
-      return () => {
-        window.removeEventListener(storeChangedCustomEvent, listener)
-        window.removeEventListener("storage", listener)
-      }
-    }, [key])
+    return () => {
+      window.removeEventListener(storeChangedCustomEvent, listener)
+      window.removeEventListener("storage", listener)
+    }
+  }, [key])
 
-    return [item, setItemMemo]
-  }) as LocalValueHook<C>
+  return [item, setItemMemo]
+}
 
 type LocalValueHookFromModifiers<M> = M extends LocalValueModifiers<infer C>
   ? C extends ValidCodec
