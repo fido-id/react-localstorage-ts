@@ -100,7 +100,7 @@ export const makeUseLocalItem = <C extends ValidCodec>(
 
     return () => {
       window.removeEventListener(storeChangedCustomEvent, listener)
-      window.removeEventListener("storage", listener)
+      win.removeEventListener("storage", listener)
     }
   }, [key])
 
