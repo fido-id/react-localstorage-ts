@@ -1,3 +1,11 @@
+# [2.3.0](https://github.com/fido-id/react-localstorage-ts/compare/v2.2.0...v2.3.0) (2021-11-19)
+
+
+### Features
+
+* **source-control:** add commitizen ([8251f53](https://github.com/fido-id/react-localstorage-ts/commit/8251f53ba1807799a3402990d6e3efc120453b83))
+* **source-control:** add commitizen ([#20](https://github.com/fido-id/react-localstorage-ts/issues/20)) ([8af8665](https://github.com/fido-id/react-localstorage-ts/commit/8af86658ba7b98062667202b4c1b8017a7217509))
+
 # [2.2.0](https://github.com/fido-id/react-localstorage-ts/compare/v2.1.0...v2.2.0) (2021-04-30)
 
 
