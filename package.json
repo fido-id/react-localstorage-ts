@@ -24,6 +24,7 @@
     "functional-programming"
   ],
   "dependencies": {
+    "cz-conventional-changelog": "3.3.0",
     "fp-ts": "^2.9.5",
     "io-ts": "^2.2.16",
     "localvalue-ts": "^2.1.0",
@@ -68,7 +69,8 @@
     "release-dry": "yarn build && semantic-release -d --no-ci --debug",
     "test": "yarn test:type && yarn test:runtime",
     "test:runtime": "jest --config=jest.config.js --passWithNoTests",
-    "test:type": "jest --config=jest.typetests-config.js --passWithNoTests"
+    "test:type": "jest --config=jest.typetests-config.js --passWithNoTests",
+    "commit": "cz"
   },
   "lint-staged": {
     "src/*.{ts,tsx,js,jsx}": [
@@ -77,5 +79,10 @@
     "src/*.{json,md}": [
       "prettier --write"
     ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
